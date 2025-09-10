@@ -7,6 +7,7 @@ anthropic>=0.20.0,<1.0.0
 httpx>=0.25.0,<1.0.0
 redis>=4.5.0,<5.0.0 # For optional Celery/Redis in later phases
 celery>=5.3.0,<6.0.0
+groq>=0.4.1,<1.0.0
 sqlalchemy>=2.0.0,<3.0.0
 asyncpg>=0.27.0,<1.0.0
 watchdog>=2.1.0,<3.0.0
