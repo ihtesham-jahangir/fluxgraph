@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="fluxgraph",
-    version="0.0.2",  # bump version to avoid re-upload conflict
+    version="0.0.3",  # bump version to avoid re-upload conflict
     author="ihtesham-jahangir",
     author_email="ceo@alphanetwork.com.pk",
     description="A lightweight Python framework for building, orchestrating, and deploying Agentic AI systems (MVP).",
