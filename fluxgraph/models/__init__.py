@@ -5,4 +5,14 @@ from .anthropic_provider import AnthropicProvider
 from .ollama_provider import OllamaProvider
 from .groq_provider import GroqProvider
 
-__all__ = ["ModelProvider", "OpenAIProvider", "AnthropicProvider", "OllamaProvider", "GroqProvider"]
+from .gemini_provider import GeminiProvider # Add this line
+
+__all__ = [
+    "ModelProvider",
+    "OpenAIProvider",
+    "AnthropicProvider",
+    "OllamaProvider",
+    "GroqProvider",
+    "GeminiProvider" # Add this line
+]
+

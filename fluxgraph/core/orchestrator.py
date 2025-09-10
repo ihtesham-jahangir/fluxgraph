@@ -3,7 +3,7 @@ from typing import Any, Dict
 from .registry import AgentRegistry
 import asyncio
 
-class SimpleOrchestrator:
+class FluxOrchestrator:
     """
     Executes agent flows based on requests.
     """

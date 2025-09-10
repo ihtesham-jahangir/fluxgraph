@@ -1,3 +1,4 @@
+# setup.py
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -8,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="fluxgraph",
-    version="0.0.1",  # bump version to avoid re-upload conflict
+    version="0.0.3",  # bump version to avoid re-upload conflict
     author="ihtesham-jahangir",
     author_email="ceo@alphanetwork.com.pk",
     description="A lightweight Python framework for building, orchestrating, and deploying Agentic AI systems (MVP).",
@@ -31,6 +32,8 @@ setup(
     python_requires='>=3.8',
     install_requires=requirements,
     entry_points={
-        'console_scripts': [],
+        'console_scripts': [
+            'flux=fluxgraph.core.app:main',  # Register 'flux' command
+        ],
     },
 )
