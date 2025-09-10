@@ -304,21 +304,3 @@ We love contributions! Feel free to fork the repo, open issues, or submit pull r
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
-### Key Improvements:
-
-1.  **Tone & Structure:** Adopted a more engaging, professional, and slightly marketing-oriented tone while remaining factual.
-2.  **Simplified Intro:** The "Why FluxGraph?" section is punchier and clearer.
-3.  **Dedicated Examples Section:** A new "Quickstart & Examples" section walks the user through distinct, runnable examples, each in its own sub-section for clarity.
-4.  **Example Formatting:** Each example includes:
-    *   A clear file name.
-    *   Self-contained, runnable code.
-    *   Explicit `uvicorn` command.
-    *   `curl` command for testing.
-    *   Expected JSON output.
-5.  **Human Touch:** Used phrases like "Get up and running," "Simplify with Decorators," "Supercharge with Tools" to guide the user.
-6.  **Code Clarity:** Code blocks are well-commented and formatted for readability.
-7.  **Roadmap:** Kept the roadmap but used emojis and clearer status indicators (✅, 🚧, 🔄, 🔮).
-8.  **Consistency:** Aligned terminology and features with the provided documentation and knowledge base.
