@@ -36,7 +36,7 @@ Tired of wrestling with overly complex agent frameworks? FluxGraph strips away t
 ## 🏗️ Core Architecture
 
 <p align="center">
-  <img src="flux-architecture.png" alt="FluxGraph Architecture" width="600"/>
+  <img src="IMG_2908.png" alt="FluxGraph Architecture" width="600"/>
 </p>
 
 FluxGraph provides a clean, modular architecture:
