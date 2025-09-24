@@ -5,12 +5,15 @@ Tool Registry for FluxGraph.
 This module implements the `ToolRegistry`, responsible for storing and managing
 reusable Python functions (tools) that can be utilized by agents within the
 FluxGraph framework.
+
+Tools registered here can be accessed by agents, for example, through a
+dependency injection mechanism provided by the `FluxApp` or orchestrator.
 """
 import logging
-from typing import Dict, Callable, Any, List, Optional
+from typing import Dict, Callable, Any, List
 import inspect
-import functools
 
+# Use module-specific logger
 logger = logging.getLogger(__name__)
 
 class ToolRegistry:
@@ -21,6 +24,13 @@ class ToolRegistry:
     (e.g., calculations, API calls, data processing). Registering them
     allows for centralized management and potential discovery/introspection
     by agents or the orchestrator in more advanced setups.
+
+    Features:
+    - Register Python functions as tools with unique names.
+    - Retrieve tools by name.
+    - List all registered tool names.
+    - Get detailed information (signature, docstring) about a tool.
+    - Prevent accidental overwriting of tools (unless specified).
 
     Attributes:
         _tools (Dict[str, Callable]): A dictionary mapping tool names (str) to
@@ -39,12 +49,13 @@ class ToolRegistry:
         Args:
             name (str): The unique identifier for the tool.
             func (Callable): The Python function to register as a tool.
-            overwrite (bool, optional): Allow overwriting an existing tool.
-                                       Defaults to False.
+            overwrite (bool, optional): Allow overwriting an existing tool
+                                         if True. Defaults to False.
 
         Raises:
             TypeError: If `name` is not a string or `func` is not callable.
-            ValueError: If `name` is empty or tool exists and `overwrite` is False.
+            ValueError: If `name` is empty, or if a tool with the same `name`
+                        already exists and `overwrite` is False.
         """
         if not isinstance(name, str):
             raise TypeError("Tool name must be a string.")
@@ -70,11 +81,11 @@ class ToolRegistry:
             name (str): The name of the tool to retrieve.
 
         Returns:
-            Callable: The tool function.
+            Callable: The registered tool function.
 
         Raises:
-            ValueError: If no tool is registered under the specified `name`.
             TypeError: If `name` is not a string.
+            ValueError: If no tool is registered under the specified `name`.
         """
         if not isinstance(name, str):
             raise TypeError("Tool name must be a string.")
@@ -91,7 +102,8 @@ class ToolRegistry:
         Lists the names of all currently registered tools.
 
         Returns:
-            List[str]: A list of registered tool names.
+            List[str]: A list of strings, where each string is the name of
+                       a registered tool.
         """
         tool_names = list(self._tools.keys())
         logger.debug(f"Listing {len(tool_names)} registered tools.")
@@ -101,29 +113,52 @@ class ToolRegistry:
         """
         Retrieves detailed information about a registered tool.
 
+        This includes the tool's name, its function signature, and its
+        docstring. This information is useful for introspection, documentation,
+        or for agents to understand how to use the tool.
+
         Args:
             name (str): The name of the tool.
 
         Returns:
-            Dict[str, Any]: Information about the tool (name, signature, docstring).
+            Dict[str, Any]: A dictionary containing information about the tool.
+                            Keys include 'name', 'signature', and 'doc'.
+
+        Raises:
+            ValueError: If the tool is not found (propagated from `get`).
         """
-        tool_func = self.get(name) # Handles not found and logging
+        # Use get() to leverage its validation and logging
+        tool_func = self.get(name)
         info: Dict[str, Any] = {
             "name": name,
             "doc": tool_func.__doc__ or "No description available.",
         }
         try:
+            # Safely inspect the function signature
             info["signature"] = str(inspect.signature(tool_func))
         except Exception as e:
              logger.warning(f"Could not inspect signature for tool '{name}': {e}")
-             info["signature"] = "Unknown"
+             info["signature"] = "Unknown (inspection failed)"
         logger.debug(f"Provided info for tool '{name}'.")
         return info
 
     def __contains__(self, name: str) -> bool:
-        """Checks if a tool with the given name is registered."""
+        """
+        Checks if a tool with the given name is registered.
+
+        Args:
+            name (str): The name of the tool to check.
+
+        Returns:
+            bool: True if the tool is registered, False otherwise.
+        """
         return name in self._tools
 
     def __len__(self) -> int:
-        """Returns the number of tools currently registered."""
+        """
+        Returns the number of tools currently registered.
+
+        Returns:
+            int: The count of registered tools.
+        """
         return len(self._tools)

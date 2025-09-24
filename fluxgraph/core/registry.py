@@ -28,9 +28,10 @@ class AgentRegistry:
     Features:
     - Register agents with unique names.
     - Retrieve agents by name.
+    - Remove agents from the registry.
     - List all registered agent names.
     - Validate agent interface upon registration.
-    - Prevent accidental overwriting of agents.
+    - Prevent accidental overwriting of agents (unless specified).
     - Provide basic information about registered agents.
 
     Attributes:
@@ -59,10 +60,10 @@ class AgentRegistry:
                                         agent with the same name. Defaults to False.
 
         Raises:
+            TypeError: If `name` is not a string.
             ValueError: If `name` is empty, if `agent` is None, if `agent` does
                         not have a callable `run` method, or if an agent with
                         the same `name` already exists and `overwrite` is False.
-            TypeError: If `name` is not a string.
         """
         if not isinstance(name, str):
             raise TypeError("Agent name must be a string.")
@@ -100,8 +101,8 @@ class AgentRegistry:
             Any: The agent instance associated with the given name.
 
         Raises:
-            ValueError: If no agent is registered under the specified `name`.
             TypeError: If `name` is not a string.
+            ValueError: If no agent is registered under the specified `name`.
         """
         if not isinstance(name, str):
             raise TypeError("Agent name must be a string.")
@@ -155,13 +156,14 @@ class AgentRegistry:
 
         Returns:
             Dict[str, Any]: A dictionary containing information about the agent.
-                            Keys may include 'name', 'type', 'run_signature'.
-                            Returns an empty dict if the agent is not found.
+                            Keys typically include 'name', 'type', 'module',
+                            and 'run_signature'.
 
         Raises:
-            ValueError: If the agent is not found.
+            ValueError: If the agent is not found (propagated from `get`).
         """
-        agent = self.get(name) # Use get to handle not found and log
+        # Use get() to leverage its validation and logging
+        agent = self.get(name)
         info: Dict[str, Any] = {
             "name": name,
             "type": type(agent).__name__,
@@ -169,10 +171,11 @@ class AgentRegistry:
         }
         try:
             run_method = getattr(agent, 'run')
+            # Safely get the signature, handling potential errors
             info["run_signature"] = str(inspect.signature(run_method))
         except Exception as e:
              logger.warning(f"Could not inspect 'run' signature for agent '{name}': {e}")
-             info["run_signature"] = "Unknown"
+             info["run_signature"] = "Unknown (inspection failed)"
         logger.debug(f"Provided info for agent '{name}'.")
         return info
 
@@ -184,14 +187,28 @@ class AgentRegistry:
             Dict[str, Dict[str, Any]]: A dictionary mapping agent names to
                                        their respective info dictionaries.
         """
+        # Iterate through names to reuse validation/logging in get_agent_info
         all_info = {name: self.get_agent_info(name) for name in self.list_agents()}
         logger.debug("Provided info for all registered agents.")
         return all_info
 
     def __len__(self) -> int:
-        """Returns the number of agents currently registered."""
+        """
+        Returns the number of agents currently registered.
+
+        Returns:
+            int: The count of registered agents.
+        """
         return len(self._agents)
 
     def __contains__(self, name: str) -> bool:
-        """Checks if an agent with the given name is registered."""
+        """
+        Checks if an agent with the given name is registered.
+
+        Args:
+            name (str): The name of the agent to check.
+
+        Returns:
+            bool: True if the agent is registered, False otherwise.
+        """
         return name in self._agents

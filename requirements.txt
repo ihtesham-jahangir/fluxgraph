@@ -13,3 +13,14 @@ asyncpg>=0.27.0,<1.0.0
 watchdog>=2.1.0,<3.0.0
 google-generativeai>=0.7.0,<1.0.0
 psycopg2-binary>=2.9.0,<3.0.0 # Alternative synchronous driver if needed
+<<<<<<< HEAD
+=======
+langchain>=0.2.0,<1.0.0
+langchain-community>=0.2.0,<1.0.0
+langchain-chroma>=0.1.0,<1.0.0 # For ChromaDB integration
+unstructured[all-docs]>=0.10.0,<1.0.0 # For broad file type support
+chromadb>=0.4.0,<1.0.0 # Vector database
+sentence-transformers>=2.2.0,<3.0.0 # For embeddings (optional, langchain handles this too)
+tiktoken>=0.5.0,<1.0.0 # For token counting (often used by langchain)
+pdfminer.six>=20230507,<20240000 # Included by unstructured for PDFs
+>>>>>>> fc06892 (adding RAG techniques)
