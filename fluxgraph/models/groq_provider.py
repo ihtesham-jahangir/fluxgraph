@@ -1,11 +1,8 @@
 # fluxgraph/models/groq_provider.py
 import os
 from typing import Dict, Any, Optional
-<<<<<<< HEAD
-from groq import AsyncGroq
-=======
 from groq import AsyncGroq  # requires groq>=0.4.0
->>>>>>> fc06892 (adding RAG techniques)
+
 from .provider import ModelProvider
 
 
