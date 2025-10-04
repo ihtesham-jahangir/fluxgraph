@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="FluxGraph Logo" width="200" height="200"/>
+  <img src="logo.jpeg" alt="FluxGraph Logo" width="200" height="200"/>
   
   # FluxGraph
 
