@@ -54,7 +54,7 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 ## Architecture
 
 <div align="center">
-  <img src="architecture.png" alt="FluxGraph Architecture" width="100%"/>
+  <img src="fluxgraph-architecture.png" alt="FluxGraph Architecture" width="100%"/>
 </div>
 
 ### System Components
