@@ -1,12 +1,16 @@
-# FluxGraph
+<div align="center">
+  <img src="https://raw.githubusercontent.com/ihtesham-jahangir/fluxgraph/main/logo.png" alt="FluxGraph Logo" width="200" height="200"/>
+  
+  # FluxGraph
 
-**Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems**
+  **Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems**
 
-[![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
-[![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
-[![Downloads](https://img.shields.io/pypi/dm/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
-[![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
-[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=flat-square)](https://discord.gg/Z9bAqjYvPc)
+  [![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
+  [![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
+  [![Downloads](https://img.shields.io/pypi/dm/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
+  [![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
+  [![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=flat-square)](https://discord.gg/Z9bAqjYvPc)
+</div>
 
 ---
 
@@ -21,6 +25,104 @@ FluxGraph is the most complete open-source AI agent framework for production env
 - Built-in PII detection (9 types) and prompt injection shields (7 techniques)
 - Agent-to-agent handoff protocol with context preservation
 - Production-ready from installation: streaming, sessions, retry, validation
+
+## Architecture
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/ihtesham-jahangir/fluxgraph/main/architecture.png" alt="FluxGraph Architecture" width="100%"/>
+</div>
+
+### System Components
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                          Client Applications                         │
+│                   (Web, Mobile, CLI, API Clients)                   │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │    Load Balancer        │
+                    │  (Nginx/CloudFlare)     │
+                    └────────────┬────────────┘
+                                 │
+┌────────────────────────────────┼────────────────────────────────────┐
+│                                │                                    │
+│              ┌─────────────────▼─────────────────┐                 │
+│              │    FluxGraph API Layer            │                 │
+│              │  (FastAPI + Gunicorn Workers)     │                 │
+│              └─────────────────┬─────────────────┘                 │
+│                                │                                    │
+│              ┌─────────────────▼─────────────────┐                 │
+│              │   FluxGraph Core Orchestrator     │                 │
+│              │  • Agent Registry & Routing       │                 │
+│              │  • Circuit Breakers              │                 │
+│              │  • Cost Tracking                 │                 │
+│              │  • Security Layer                │                 │
+│              └─────────────────┬─────────────────┘                 │
+│                                │                                    │
+│       ┌────────────┬───────────┼───────────┬────────────┐          │
+│       │            │           │           │            │          │
+│  ┌────▼────┐  ┌───▼────┐  ┌──▼───┐  ┌────▼─────┐ ┌───▼────┐     │
+│  │  Agent  │  │  Tool  │  │Memory│  │   RAG    │ │  MCP   │     │
+│  │Registry │  │Registry│  │Store │  │  System  │ │ Server │     │
+│  └────┬────┘  └───┬────┘  └──┬───┘  └────┬─────┘ └───┬────┘     │
+│       │           │          │           │           │          │
+└───────┼───────────┼──────────┼───────────┼───────────┼──────────┘
+        │           │          │           │           │
+   ┌────▼─────┐┌───▼────┐┌────▼─────┐┌────▼─────┐┌───▼────┐
+   │  Custom  ││External││PostgreSQL││ ChromaDB ││Protocol│
+   │  Agents  ││  APIs  ││  Redis   ││Embeddings││ Tools  │
+   └──────────┘└────────┘└──────────┘└──────────┘└────────┘
+                    │
+              ┌─────▼─────┐
+              │   LLM     │
+              │ Providers │
+              │ (OpenAI,  │
+              │Anthropic, │
+              │  Groq)    │
+              └───────────┘
+```
+
+### Data Flow
+
+```
+User Request → API Gateway → Security Layer → Agent Router
+                                    ↓
+            ┌───────────────────────┴───────────────────────┐
+            │                                               │
+    ┌───────▼───────┐                           ┌──────────▼────────┐
+    │  Audit Logger │                           │  Cost Tracker     │
+    │  (Blockchain) │                           │  (Real-time)      │
+    └───────────────┘                           └───────────────────┘
+            │                                               │
+            └───────────────────┬───────────────────────────┘
+                                ▼
+                        ┌───────────────┐
+                        │ Agent Engine  │
+                        │ • PII Check   │
+                        │ • Injection   │
+                        │ • Circuit     │
+                        └───────┬───────┘
+                                │
+                    ┌───────────┼───────────┐
+                    ▼           ▼           ▼
+              ┌─────────┐ ┌─────────┐ ┌─────────┐
+              │  Tools  │ │ Memory  │ │   RAG   │
+              └─────────┘ └─────────┘ └─────────┘
+                    │           │           │
+                    └───────────┼───────────┘
+                                ▼
+                        ┌───────────────┐
+                        │  LLM Provider │
+                        └───────┬───────┘
+                                │
+                        Response Generated
+                                │
+                                ▼
+                    Stream/Return to User
+```
+
+---
 
 ## Quick Start
 
