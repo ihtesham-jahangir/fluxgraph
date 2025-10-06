@@ -3,13 +3,7 @@
   
 # FluxGraph
 
-<<<<<<< HEAD
-  **Enterprise AI Agent Orchestration Framework v3.0**
-  
-  *Graph workflows • Advanced memory • Semantic caching • Production-ready*
-=======
 **Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems**
->>>>>>> 9296f168a2228731127546be7a881a95925d48f5
 
 [![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
 [![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
@@ -51,7 +45,7 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 ## Architecture
 
 <div align="center">
-  <img src="architecture.png" alt="FluxGraph Architecture" width="100%"/>
+  <img src="fluxgraph-architecture.png" alt="FluxGraph Architecture" width="100%"/>
 </div>
 
 ### System Overview
@@ -682,12 +676,6 @@ See [LICENSE](LICENSE) file for details.
   <p>The most advanced open-source AI agent framework</p>
   <p>Graph workflows • Semantic caching • Hybrid memory • Enterprise security</p>
   <br/>
-<<<<<<< HEAD
-  <p><em>Star us on GitHub if FluxGraph powers your AI systems!</em></p>
-  <p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a> • <a href="https://pypi.org/project/fluxgraph">PyPI</a></p>
-</div>
-=======
   <p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
   <p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
 </div>
->>>>>>> 9296f168a2228731127546be7a881a95925d48f5
