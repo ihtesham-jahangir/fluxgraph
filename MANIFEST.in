@@ -1,2 +1,10 @@
-include requirements.txt
 include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+include requirements-dev.txt
+recursive-include fluxgraph *.py
+recursive-include examples *.py
+recursive-include docs *.md
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

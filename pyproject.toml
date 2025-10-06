@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluxgraph"
+version = "2.0.0"
+description = "Production-grade enterprise AI agent orchestration framework"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Ihtesham Jahangir", email = "ceo@alphanetwork.com.pk"}
+]
+keywords = [
+    "ai", "agents", "llm", "orchestration", "fastapi", 
+    "enterprise", "security", "compliance"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/ihtesham-jahangir/fluxgraph"
+Documentation = "https://fluxgraph.readthedocs.io"
+Repository = "https://github.com/ihtesham-jahangir/fluxgraph"
+"Bug Tracker" = "https://github.com/ihtesham-jahangir/fluxgraph/issues"
+Discord = "https://discord.gg/Z9bAqjYvPc"
+
+[project.scripts]
+flux = "fluxgraph.core.app:main"

@@ -9,6 +9,7 @@ import logging
 import time
 from typing import Callable, Any, Optional, Type, Tuple
 from functools import wraps
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
