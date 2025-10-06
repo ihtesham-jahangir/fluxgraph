@@ -1,19 +1,23 @@
 <div align="center">
   <img src="logo.png" alt="FluxGraph Logo" width="200" height="200"/>
   
-  # FluxGraph
+# FluxGraph
 
+<<<<<<< HEAD
   **Enterprise AI Agent Orchestration Framework v3.0**
   
   *Graph workflows • Advanced memory • Semantic caching • Production-ready*
+=======
+**Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems**
+>>>>>>> 9296f168a2228731127546be7a881a95925d48f5
 
-  [![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
-  [![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
-  [![Downloads](https://img.shields.io/pypi/dm/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
-  [![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
-  [![Documentation](https://img.shields.io/badge/docs-available-brightgreen?style=flat-square)](https://fluxgraph.readthedocs.io)
-  [![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=flat-square)](https://discord.gg/Z9bAqjYvPc)
-</div>
+[![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
+[![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
+[![PyPI Downloads](https://img.shields.io/pypi/dw/fluxgraph?label=PyPI%20downloads%2Fweek&style=flat-square&color=brightgreen)](https://pypi.org/project/fluxgraph/)
+[![GitHub Clones](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.star-history.com%2Frepos%2Fihtesham-jahangir%2Ffluxgraph%2Fclones&query=%24.total&label=GitHub%20clones&suffix=%2Fmonth&color=yellow&style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/graphs/traffic)
+[![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-available-brightgreen?style=flat-square)](https://fluxgraph.readthedocs.io)
+[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=flat-square)](https://discord.gg/Z9bAqjYvPc)
 
 ---
 
@@ -678,6 +682,12 @@ See [LICENSE](LICENSE) file for details.
   <p>The most advanced open-source AI agent framework</p>
   <p>Graph workflows • Semantic caching • Hybrid memory • Enterprise security</p>
   <br/>
+<<<<<<< HEAD
   <p><em>Star us on GitHub if FluxGraph powers your AI systems!</em></p>
   <p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a> • <a href="https://pypi.org/project/fluxgraph">PyPI</a></p>
 </div>
+=======
+  <p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
+  <p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
+</div>
+>>>>>>> 9296f168a2228731127546be7a881a95925d48f5
