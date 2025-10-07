@@ -19,22 +19,6 @@
 </p>
 
 <p align="center">
-  <!-- PyPI Download Stats -->
-  <a href="https://pepy.tech/project/fluxgraph">
-    <img src="https://static.pepy.tech/badge/fluxgraph?style=for-the-badge" alt="Total downloads"/>
-  </a>
-  <a href="https://pepy.tech/project/fluxgraph">
-    <img src="https://static.pepy.tech/badge/fluxgraph/month?style=for-the-badge" alt="Monthly downloads"/>
-  </a>
-  <a href="https://pepy.tech/project/fluxgraph">
-    <img src="https://static.pepy.tech/badge/fluxgraph/week?style=for-the-badge" alt="Weekly downloads"/>
-  </a>
-  <a href="https://pypistats.org/packages/fluxgraph">
-    <img src="https://img.shields.io/pypi/dm/fluxgraph?style=for-the-badge&color=brightgreen&label=PyPI%20Downloads" alt="PyPI downloads per month"/>
-  </a>
-</p>
-
-<p align="center">
   <!-- GitHub Stats -->
   <a href="https://github.com/ihtesham-jahangir/fluxgraph">
     <img src="https://img.shields.io/github/stars/ihtesham-jahangir/fluxgraph?style=for-the-badge&logo=github" alt="GitHub Stars"/>
