@@ -8,27 +8,68 @@
 
 <p align="center">
   <a href="https://pypi.org/project/fluxgraph/">
-    <img src="https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square" alt="PyPI version"/>
+    <img src="https://img.shields.io/pypi/v/fluxgraph?color=blue&style=for-the-badge&logo=pypi&logoColor=white" alt="PyPI version"/>
   </a>
   <a href="https://pypi.org/project/fluxgraph/">
-    <img src="https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square" alt="Python versions"/>
-  </a>
-  <a href="https://pepy.tech/projects/fluxgraph">
-    <img src="https://static.pepy.tech/badge/fluxgraph" alt="Total downloads"/>
-  </a>
-  <a href="https://pepy.tech/projects/fluxgraph">
-    <img src="https://static.pepy.tech/badge/fluxgraph/month" alt="Monthly downloads"/>
+    <img src="https://img.shields.io/pypi/pyversions/fluxgraph?style=for-the-badge&logo=python&logoColor=white" alt="Python versions"/>
   </a>
   <a href="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square" alt="License"/>
-  </a>
-  <a href="https://fluxgraph.readthedocs.io">
-    <img src="https://img.shields.io/badge/docs-available-brightgreen?style=flat-square" alt="Documentation"/>
-  </a>
-  <a href="https://github.com/ihtesham-jahangir/fluxgraph">
-    <img src="https://img.shields.io/github/stars/ihtesham-jahangir/fluxgraph?style=flat-square" alt="GitHub Stars"/>
+    <img src="https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=for-the-badge" alt="License"/>
   </a>
 </p>
+
+<p align="center">
+  <!-- PyPI Download Stats -->
+  <a href="https://pepy.tech/project/fluxgraph">
+    <img src="https://static.pepy.tech/badge/fluxgraph?style=for-the-badge" alt="Total downloads"/>
+  </a>
+  <a href="https://pepy.tech/project/fluxgraph">
+    <img src="https://static.pepy.tech/badge/fluxgraph/month?style=for-the-badge" alt="Monthly downloads"/>
+  </a>
+  <a href="https://pepy.tech/project/fluxgraph">
+    <img src="https://static.pepy.tech/badge/fluxgraph/week?style=for-the-badge" alt="Weekly downloads"/>
+  </a>
+  <a href="https://pypistats.org/packages/fluxgraph">
+    <img src="https://img.shields.io/pypi/dm/fluxgraph?style=for-the-badge&color=brightgreen&label=PyPI%20Downloads" alt="PyPI downloads per month"/>
+  </a>
+</p>
+
+<p align="center">
+  <!-- GitHub Stats -->
+  <a href="https://github.com/ihtesham-jahangir/fluxgraph">
+    <img src="https://img.shields.io/github/stars/ihtesham-jahangir/fluxgraph?style=for-the-badge&logo=github" alt="GitHub Stars"/>
+  </a>
+  <a href="https://github.com/ihtesham-jahangir/fluxgraph/network/members">
+    <img src="https://img.shields.io/github/forks/ihtesham-jahangir/fluxgraph?style=for-the-badge&logo=github" alt="GitHub Forks"/>
+  </a>
+  <a href="https://github.com/ihtesham-jahangir/fluxgraph/issues">
+    <img src="https://img.shields.io/github/issues/ihtesham-jahangir/fluxgraph?style=for-the-badge" alt="GitHub Issues"/>
+  </a>
+</p>
+
+<p align="center">
+  <!-- Documentation & Community -->
+  <a href="https://fluxgraph.readthedocs.io">
+    <img src="https://img.shields.io/badge/docs-available-brightgreen?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Documentation"/>
+  </a>
+  <a href="https://discord.gg/Z9bAqjYvPc">
+    <img src="https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=for-the-badge&color=5865F2" alt="Discord"/>
+  </a>
+</p>
+
+<div align="center">
+  <h3>📊 Download Statistics</h3>
+  <table>
+    <tr>
+      <td align="center"><b>All-Time Downloads</b><br/><a href="https://pepy.tech/project/fluxgraph"><img src="https://static.pepy.tech/badge/fluxgraph" alt="Total"/></a></td>
+      <td align="center"><b>Monthly Downloads</b><br/><a href="https://pepy.tech/project/fluxgraph"><img src="https://static.pepy.tech/badge/fluxgraph/month" alt="Monthly"/></a></td>
+      <td align="center"><b>Weekly Downloads</b><br/><a href="https://pepy.tech/project/fluxgraph"><img src="https://static.pepy.tech/badge/fluxgraph/week" alt="Weekly"/></a></td>
+    </tr>
+  </table>
+  <p><strong>🚀 Trusted by Developers Worldwide | Production-Ready from Day 1</strong></p>
+</div>
+
+---
 
 <div align="center">
   <p><strong>1.6K+ Total Downloads | 1 GitHub Star | Modern & Production-Ready</strong></p>

@@ -1,10 +1,23 @@
 include README.md
+include pypi_readme.md
 include LICENSE
-include CHANGELOG.md
 include requirements.txt
-include requirements-dev.txt
+include pyproject.toml
+include setup.py
+include CHANGELOG.md
+include *.md
+
 recursive-include fluxgraph *.py
-recursive-include examples *.py
-recursive-include docs *.md
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+recursive-include fluxgraph *.json
+recursive-include fluxgraph *.yaml
+recursive-include fluxgraph *.yml
+recursive-include fluxgraph py.typed
+
+recursive-exclude tests *
+recursive-exclude docs *
+recursive-exclude examples *
+recursive-exclude .github *
+global-exclude __pycache__
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .DS_Store

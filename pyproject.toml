@@ -4,36 +4,255 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fluxgraph"
-version = "2.0.0"
-description = "Production-grade enterprise AI agent orchestration framework"
-readme = "README.md"
+version = "2.1.0"
+description = "Production-grade AI agent orchestration framework with graph workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen."
+readme = "pypi_readme.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
     {name = "Ihtesham Jahangir", email = "ceo@alphanetwork.com.pk"}
 ]
+maintainers = [
+    {name = "Ihtesham Jahangir", email = "ceo@alphanetwork.com.pk"}
+]
 keywords = [
-    "ai", "agents", "llm", "orchestration", "fastapi", 
-    "enterprise", "security", "compliance"
+    "ai", "agents", "llm", "gpt", "orchestration", "multi-agent", "autonomous-agents",
+    "langchain", "langgraph", "autogen", "crewai", "semantic-kernel", "haystack",
+    "openai", "anthropic", "claude", "gemini", "groq", "ollama", "gpt-4",
+    "fastapi", "async", "rag", "vector-database", "embeddings", "chromadb",
+    "workflow", "workflow-graph", "semantic-caching", "hybrid-memory",
+    "enterprise", "production", "security", "audit", "compliance", "rbac",
+    "hitl", "human-in-the-loop", "circuit-breaker", "cost-tracking",
+    "agent-framework", "ai-orchestration", "llm-framework"
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Framework :: FastAPI",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
+    "Natural Language :: English",
+    "Environment :: Web Environment",
+    "Environment :: Console",
+]
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.5.0",
+    "httpx>=0.25.0",
+]
+
+[project.optional-dependencies]
+p0 = [
+    "networkx>=3.1",
+    "sentence-transformers>=2.2.2",
+    "numpy>=1.24.0",
+    "faiss-cpu>=1.7.4",
+]
+
+production = [
+    "uvicorn[standard]>=0.24.0",
+    "gunicorn>=21.0.0",
+    "sse-starlette>=1.6.5",
+    "python-multipart>=0.0.6",
+]
+
+security = [
+    "pyjwt>=2.8.0",
+    "cryptography>=41.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+]
+
+orchestration = [
+    "celery>=5.3.4",
+    "redis>=5.0.0",
+]
+
+rag = [
+    "chromadb>=0.4.18",
+    "langchain>=0.1.0",
+    "sentence-transformers>=2.2.2",
+    "pypdf>=3.17.0",
+    "docx2txt>=0.8",
+    "unstructured>=0.11.0",
+]
+
+postgres = [
+    "psycopg2-binary>=2.9.9",
+    "sqlalchemy>=2.0.23",
+]
+
+analytics = [
+    "prometheus-client>=0.19.0",
+    "plotly>=5.18.0",
+    "pandas>=2.0.0",
+]
+
+chains = [
+    "langchain-core>=0.1.0",
+]
+
+tracing = [
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+]
+
+dev = [
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "black>=23.12.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.1",
+    "isort>=5.13.0",
+    "pre-commit>=3.5.0",
+]
+
+test = [
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.25.0",
+    "faker>=20.1.0",
+]
+
+full = [
+    "networkx>=3.1",
+    "sentence-transformers>=2.2.2",
+    "numpy>=1.24.0",
+    "faiss-cpu>=1.7.4",
+    "uvicorn[standard]>=0.24.0",
+    "gunicorn>=21.0.0",
+    "sse-starlette>=1.6.5",
+    "python-multipart>=0.0.6",
+    "celery>=5.3.4",
+    "redis>=5.0.0",
+    "chromadb>=0.4.18",
+    "langchain>=0.1.0",
+    "pypdf>=3.17.0",
+    "docx2txt>=0.8",
+    "psycopg2-binary>=2.9.9",
+    "sqlalchemy>=2.0.23",
+    "prometheus-client>=0.19.0",
+    "plotly>=5.18.0",
+    "pandas>=2.0.0",
+    "langchain-core>=0.1.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+]
+
+all = [
+    "networkx>=3.1",
+    "sentence-transformers>=2.2.2",
+    "numpy>=1.24.0",
+    "faiss-cpu>=1.7.4",
+    "uvicorn[standard]>=0.24.0",
+    "gunicorn>=21.0.0",
+    "sse-starlette>=1.6.5",
+    "python-multipart>=0.0.6",
+    "pyjwt>=2.8.0",
+    "cryptography>=41.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "celery>=5.3.4",
+    "redis>=5.0.0",
+    "chromadb>=0.4.18",
+    "langchain>=0.1.0",
+    "pypdf>=3.17.0",
+    "docx2txt>=0.8",
+    "psycopg2-binary>=2.9.9",
+    "sqlalchemy>=2.0.23",
+    "prometheus-client>=0.19.0",
+    "plotly>=5.18.0",
+    "pandas>=2.0.0",
+    "langchain-core>=0.1.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "black>=23.12.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/ihtesham-jahangir/fluxgraph"
 Documentation = "https://fluxgraph.readthedocs.io"
 Repository = "https://github.com/ihtesham-jahangir/fluxgraph"
+Source = "https://github.com/ihtesham-jahangir/fluxgraph"
 "Bug Tracker" = "https://github.com/ihtesham-jahangir/fluxgraph/issues"
+Changelog = "https://github.com/ihtesham-jahangir/fluxgraph/blob/main/CHANGELOG.md"
 Discord = "https://discord.gg/Z9bAqjYvPc"
+Twitter = "https://twitter.com/FluxGraphAI"
+LinkedIn = "https://linkedin.com/in/ihtesham-jahangir"
 
 [project.scripts]
 flux = "fluxgraph.core.app:main"
+fluxgraph = "fluxgraph.core.app:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fluxgraph*"]
+exclude = ["tests*", "docs*", "examples*"]
+
+[tool.setuptools.package-data]
+fluxgraph = ["py.typed", "*.json", "*.yaml", "*.yml"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=fluxgraph --cov-report=html --cov-report=term"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["fluxgraph"]
+omit = ["tests/*", "*/venv/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
