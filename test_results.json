@@ -1,0 +1,59 @@
+{
+  "passed": 13,
+  "failed": 0,
+  "total": 13,
+  "details": [
+    {
+      "test": "Core: App Init",
+      "status": "PASSED"
+    },
+    {
+      "test": "Core: Agent Reg",
+      "status": "PASSED"
+    },
+    {
+      "test": "Core: Tool Reg",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.0: Workflows",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.0: Memory",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.0: Cache",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.2: Chains",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.2: Tracing",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.2: Batch",
+      "status": "PASSED"
+    },
+    {
+      "test": "v3.2: Streaming",
+      "status": "PASSED"
+    },
+    {
+      "test": "Integration: Memory",
+      "status": "PASSED"
+    },
+    {
+      "test": "Integration: RAG",
+      "status": "PASSED"
+    },
+    {
+      "test": "API: Routes",
+      "status": "PASSED"
+    }
+  ]
+}
