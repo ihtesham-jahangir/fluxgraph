@@ -1,122 +1,215 @@
 # fluxgraph/models/gemini_provider.py
 """
-Model provider for Google Gemini's API.
+Enhanced Google Gemini Provider with full features
 """
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional, AsyncIterator
 import google.generativeai as genai
-# import google.ai.generativelanguage as glm # Might be needed for advanced safety handling
-from .provider import ModelProvider
+from google.api_core import retry
+import asyncio
+
+from .provider import (
+    ModelProvider,
+    ModelConfig,
+    ModelResponse,
+    ModelCapability,
+    ModelProviderError,
+    ModelProviderAuthError,
+    ModelProviderRateLimitError,
+    ModelProviderTimeoutError
+)
+
 
 class GeminiProvider(ModelProvider):
     """
-    Model provider for Google's Gemini API.
+    Enhanced Google Gemini provider with streaming and error handling.
+    
+    Supported models:
+    - gemini-1.5-pro
+    - gemini-1.5-flash
+    - gemini-pro
     """
-
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-1.5-flash"):
-        """
-        Initializes the Gemini provider.
-
-        Args:
-            api_key (str, optional): Google API key.
-                                     Defaults to `os.getenv("GOOGLE_API_KEY")`.
-            model (str, optional): The Gemini model to use.
-                                   Defaults to "gemini-1.5-flash".
-        """
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
-        if not self.api_key:
-            raise ValueError(
-                "Google API key is required for GeminiProvider. Set GOOGLE_API_KEY environment "
-                "variable or pass it directly."
-            )
+    
+    def __init__(self, config: ModelConfig):
+        super().__init__(config)
+        self.model_instance = None
         
-        # Configure the library with the API key
-        genai.configure(api_key=self.api_key)
-        
-        self.model_name = model
-        # Initialize the model client instance
-        self.model = genai.GenerativeModel(self.model_name)
-        # Note: Setting system_instruction during model creation is possible:
-        # self.model = genai.GenerativeModel(self.model_name, system_instruction="...")
-
-    async def generate(self, prompt: str, **kwargs) -> Dict[str, Any]:
-        """
-        Generate a response using the Google Gemini API.
-
-        Args:
-            prompt (str): The user's prompt.
-            **kwargs: Additional arguments like temperature, max_tokens.
-
-        Returns:
-            Dict[str, Any]: The structured response.
-        """
+        # Set capabilities
+        self._capabilities = [
+            ModelCapability.TEXT_GENERATION,
+            ModelCapability.CHAT,
+            ModelCapability.STREAMING,
+            ModelCapability.VISION,
+            ModelCapability.CODE_GENERATION
+        ]
+    
+    async def initialize(self) -> None:
+        """Initialize Gemini client"""
         try:
-            # Map common kwargs to Gemini's expected parameters for GenerationConfig
-            generation_config_kwargs = {}
-            if "temperature" in kwargs:
-                generation_config_kwargs["temperature"] = kwargs["temperature"]
-            if "max_tokens" in kwargs:
-                 # Gemini uses `max_output_tokens`
-                 generation_config_kwargs["max_output_tokens"] = kwargs["max_tokens"]
+            if not self.config.api_key:
+                raise ModelProviderAuthError("GOOGLE_API_KEY not provided")
             
-            # Handle system instruction
-            # The cleanest way is often to set it on the model instance during initialization.
-            # If passed per request, it needs to be handled carefully.
-            # Older or current SDK versions might not support `system_instruction` directly
-            # in `generate_content_async`. A common workaround is to prepend it to the prompt
-            # or rely on the model's initial system instruction.
-            system_instruction = kwargs.pop("system_message", None)
+            genai.configure(api_key=self.config.api_key)
             
-            # Prepare contents. Prepending system instruction to the prompt if needed
-            # and not set globally on the model instance.
-            # A more advanced approach would check the SDK version or use model._system_instruction
-            # if set during init. For simplicity here, we'll just use the prompt.
-            # If you need dynamic system instructions, consider setting it on the model
-            # when you create the provider instance or handle it by modifying the prompt contextually.
-            contents = prompt
-
-            # Create GenerationConfig object if we have specific settings
-            generation_config = genai.GenerationConfig(**generation_config_kwargs) if generation_config_kwargs else None
-
-            # --- Call the async generate method ---
-            # Pass contents, generation_config.
-            # DO NOT pass system_instruction directly here if your SDK version doesn't support it.
-            response = await self.model.generate_content_async(
-                contents=contents,
-                generation_config=generation_config # Pass the config object
-                # system_instruction=system_instruction # REMOVED: Causes the error
-                # **kwargs # REMOVED: Dangerous, might pass unsupported arguments
+            # Configure generation settings
+            generation_config = {
+                "temperature": self.config.temperature,
+                "max_output_tokens": self.config.max_tokens,
+                "top_p": self.config.top_p,
+            }
+            
+            self.model_instance = genai.GenerativeModel(
+                model_name=self.config.model_name,
+                generation_config=generation_config
             )
             
-            # --- Extract information from the response ---
+            self._initialized = True
+            self.logger.info(f"Gemini provider initialized: {self.config.model_name}")
+            
+        except Exception as e:
+            raise ModelProviderAuthError(f"Failed to initialize Gemini: {e}")
+    
+    async def generate(
+        self,
+        prompt: str,
+        system_message: Optional[str] = None,
+        **kwargs
+    ) -> ModelResponse:
+        """Generate text using Gemini"""
+        if not self._initialized:
+            await self.initialize()
+        
+        # Combine system message with prompt if provided
+        full_prompt = prompt
+        if system_message:
+            full_prompt = f"System: {system_message}\n\nUser: {prompt}"
+        
+        params = self._merge_kwargs(**kwargs)
+        
+        # Build generation config
+        generation_config = genai.GenerationConfig(
+            temperature=params.get("temperature", self.config.temperature),
+            max_output_tokens=params.get("max_tokens", self.config.max_tokens),
+            top_p=params.get("top_p", self.config.top_p),
+        )
+        
+        try:
+            response = await self._retry_with_backoff(
+                self.model_instance.generate_content_async,
+                full_prompt,
+                generation_config=generation_config
+            )
+            
+            # Extract text
             text_content = ""
             if response.candidates and response.candidates[0].content.parts:
-                part = response.candidates[0].content.parts[0]
-                if hasattr(part, 'text'):
-                    text_content = part.text.strip()
+                text_content = response.candidates[0].content.parts[0].text.strip()
             
-            model_info = getattr(response, 'model', self.model_name)
-
-            usage_metadata = {}
+            # Extract usage
+            usage = {}
             if hasattr(response, 'usage_metadata') and response.usage_metadata:
-                usage_metadata = {
-                    "prompt_token_count": response.usage_metadata.prompt_token_count,
-                    "candidates_token_count": response.usage_metadata.candidates_token_count,
-                    "total_token_count": response.usage_metadata.total_token_count,
+                usage = {
+                    "prompt_tokens": response.usage_metadata.prompt_token_count,
+                    "completion_tokens": response.usage_metadata.candidates_token_count,
+                    "total_tokens": response.usage_metadata.total_token_count
                 }
             
-            # Optional: Extract safety ratings
-            safety_ratings = []
-            # ... (code for safety ratings if needed)
-
-            return {
-                "text": text_content,
-                "model": model_info,
-                "usage": usage_metadata,
-                # "safety_ratings": safety_ratings, # Include if needed
-                # Use .to_dict() if available, otherwise str() for raw response
-                "raw_response": response.to_dict() if hasattr(response, 'to_dict') else str(response)
-            }
+            return ModelResponse(
+                text=text_content,
+                model=self.config.model_name,
+                provider="gemini",
+                finish_reason=response.candidates[0].finish_reason.name if response.candidates else None,
+                usage=usage,
+                raw_response=response
+            )
+            
         except Exception as e:
-            # Provide more context in the error message
-            raise RuntimeError(f"Gemini API call failed for model '{self.model_name}': {e}") from e
+            raise ModelProviderError(f"Gemini generation failed: {e}")
+    
+    async def chat(
+        self,
+        messages: List[Dict[str, str]],
+        **kwargs
+    ) -> ModelResponse:
+        """Chat completion with Gemini"""
+        if not self._initialized:
+            await self.initialize()
+        
+        # Convert messages to Gemini format
+        history = []
+        current_message = None
+        
+        for msg in messages:
+            role = msg["role"]
+            content = msg["content"]
+            
+            if role == "system":
+                # Prepend system message to first user message
+                continue
+            elif role == "user":
+                history.append({"role": "user", "parts": [content]})
+            elif role == "assistant":
+                history.append({"role": "model", "parts": [content]})
+        
+        # Get the last user message
+        if history and history[-1]["role"] == "user":
+            current_message = history[-1]["parts"][0]
+            history = history[:-1]
+        
+        try:
+            chat = self.model_instance.start_chat(history=history)
+            response = await chat.send_message_async(current_message)
+            
+            text_content = response.text.strip() if response.text else ""
+            
+            return ModelResponse(
+                text=text_content,
+                model=self.config.model_name,
+                provider="gemini",
+                raw_response=response
+            )
+            
+        except Exception as e:
+            raise ModelProviderError(f"Gemini chat failed: {e}")
+    
+    async def stream_generate(
+        self,
+        prompt: str,
+        system_message: Optional[str] = None,
+        **kwargs
+    ) -> AsyncIterator[str]:
+        """Stream generation from Gemini"""
+        if not self._initialized:
+            await self.initialize()
+        
+        full_prompt = prompt
+        if system_message:
+            full_prompt = f"System: {system_message}\n\nUser: {prompt}"
+        
+        try:
+            response = await self.model_instance.generate_content_async(
+                full_prompt,
+                stream=True
+            )
+            
+            async for chunk in response:
+                if chunk.text:
+                    yield chunk.text
+                    
+        except Exception as e:
+            raise ModelProviderError(f"Gemini streaming failed: {e}")
+    
+    async def _retry_with_backoff(self, func, *args, **kwargs):
+        """Retry with exponential backoff"""
+        max_retries = self.config.retry_attempts
+        
+        for attempt in range(max_retries):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                
+                wait_time = 2 ** attempt
+                self.logger.warning(f"Retry {attempt + 1}/{max_retries} after {wait_time}s: {e}")
+                await asyncio.sleep(wait_time)
