@@ -1,10 +1,13 @@
 <div align="center">
+
   <img src="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/logo.jpeg" alt="FluxGraph Logo" width="200" height="200"/>
 </div>
 
 <h1 align="center">FluxGraph</h1>
 
+```
 <p align="center"><strong>Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems</strong></p>
+```
 
 <p align="center">
   <a href="https://pypi.org/project/fluxgraph/">
@@ -17,7 +20,6 @@
     <img src="https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=for-the-badge" alt="License"/>
   </a>
 </p>
-
 <p align="center">
   <!-- GitHub Stats -->
   <a href="https://github.com/ihtesham-jahangir/fluxgraph">
@@ -30,7 +32,6 @@
     <img src="https://img.shields.io/github/issues/ihtesham-jahangir/fluxgraph?style=for-the-badge" alt="GitHub Issues"/>
   </a>
 </p>
-
 <p align="center">
   <!-- Documentation & Community -->
   <a href="https://fluxgraph.readthedocs.io">
@@ -40,12 +41,13 @@
     <img src="https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=for-the-badge&color=5865F2" alt="Discord"/>
   </a>
 </p>
-
 <div align="center">
   <h3>📊 Download Statistics</h3>
   <table>
     <tr>
+      ```
       <td align="center"><b>All-Time Downloads</b><br/><a href="https://pepy.tech/project/fluxgraph"><img src="https://static.pepy.tech/badge/fluxgraph" alt="Total"/></a></td>
+      ```
       <td align="center"><b>Monthly Downloads</b><br/><a href="https://pepy.tech/project/fluxgraph"><img src="https://static.pepy.tech/badge/fluxgraph/month" alt="Monthly"/></a></td>
       <td align="center"><b>Weekly Downloads</b><br/><a href="https://pepy.tech/project/fluxgraph"><img src="https://static.pepy.tech/badge/fluxgraph/week" alt="Weekly"/></a></td>
     </tr>
@@ -73,10 +75,11 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 - **Hybrid Memory System** - Short-term + long-term + episodic memory with semantic search
 - **Semantic Caching** - Intelligent response caching reduces LLM costs by 70%+
 
+
 ### Why FluxGraph?
 
 | Feature | FluxGraph 3.0 | LangGraph | CrewAI | AutoGen |
-|---------|---------------|-----------|--------|---------|
+| :-- | :-- | :-- | :-- | :-- |
 | **Graph Workflows** | ✅ Native | ✅ Core | ❌ | ❌ |
 | **Semantic Caching** | ✅ Built-in | ❌ | ❌ | ❌ |
 | **Hybrid Memory** | ✅ Advanced | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic |
@@ -86,6 +89,7 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 | **PII Detection** | ✅ 9 types | ❌ | ❌ | ❌ |
 | **Streaming** | ✅ SSE | ⚠️ Callbacks | ❌ | ❌ |
 | **Production Ready** | ✅ Day 1 | ⚠️ Config | ⚠️ Manual | ⚠️ Manual |
+
 
 ---
 
@@ -112,6 +116,7 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 └─────────────────────────────────────────────────────────┘
 ```
 
+
 ---
 
 ## Installation
@@ -122,9 +127,11 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 # Full installation with v3.0 features
 pip install fluxgraph[full]
 
+
 # Minimal installation
 pip install fluxgraph
 ```
+
 
 ### Feature-Specific
 
@@ -132,12 +139,15 @@ pip install fluxgraph
 # v3.0 features only
 pip install fluxgraph[p0]
 
+
 # Production + v3.0
 pip install fluxgraph[production,p0]
+
 
 # Everything
 pip install fluxgraph[all]
 ```
+
 
 ### Available Extras
 
@@ -159,17 +169,21 @@ pip install fluxgraph[all]
 ```python
 from fluxgraph import FluxApp
 
+
 app = FluxApp(title="My AI App")
+
 
 @app.agent()
 async def assistant(message: str,**kwargs) -> dict:
     """Your first AI agent."""
     return {"response": f"You said: {message}"}
 
+
 # Run: flux run app.py
 # Test: curl -X POST http://localhost:8000/ask/assistant \
 #       -d '{"message":"Hello!"}'
 ```
+
 
 ### LLM-Powered Agent
 
@@ -178,12 +192,15 @@ import os
 from fluxgraph import FluxApp
 from fluxgraph.models import OpenAIProvider
 
+
 app = FluxApp(title="Smart Assistant")
+
 
 llm = OpenAIProvider(
     api_key=os.getenv("OPENAI_API_KEY"),
     model="gpt-4"
 )
+
 
 @app.agent()
 async def assistant(query: str) -> dict:
@@ -191,6 +208,7 @@ async def assistant(query: str) -> dict:
     response = await llm.generate(f"Answer: {query}")
     return {"answer": response.get("text")}
 ```
+
 
 ---
 
@@ -204,7 +222,9 @@ Create complex agent workflows with conditional routing and loops:
 from fluxgraph import FluxApp
 from fluxgraph.core import WorkflowBuilder
 
+
 app = FluxApp(enable_workflows=True)
+
 
 # Define workflow agents
 async def research_agent(state):
@@ -213,17 +233,20 @@ async def research_agent(state):
     state.update("research", results)
     return results
 
+
 async def analysis_agent(state):
     research = state.get("research")
     analysis = await analyze(research)
     state.update("analysis", analysis)
     return analysis
 
+
 # Quality check router
 def quality_check(state):
     if state.get("analysis").get("confidence") < 0.8:
         return "retry"  # Loop back
     return "complete"
+
 
 # Build workflow graph
 workflow = (WorkflowBuilder("research_workflow")
@@ -237,7 +260,9 @@ workflow = (WorkflowBuilder("research_workflow")
     .start_from("researcher")
     .build())
 
+
 app.register_workflow("research", workflow)
+
 
 # Execute
 result = await workflow.execute({"query": "AI trends 2025"})
@@ -251,6 +276,7 @@ result = await workflow.execute({"query": "AI trends 2025"})
 - Visual workflow representation
 - Error recovery and rollback
 
+
 ### 2. Advanced Memory System
 
 Hybrid memory with semantic search and automatic consolidation:
@@ -259,7 +285,9 @@ Hybrid memory with semantic search and automatic consolidation:
 from fluxgraph import FluxApp
 from fluxgraph.core import MemoryType
 
+
 app = FluxApp(enable_advanced_memory=True)
+
 
 @app.agent()
 async def smart_agent(query: str, advanced_memory) -> dict:
@@ -301,6 +329,7 @@ async def smart_agent(query: str, advanced_memory) -> dict:
 - Configurable forgetting mechanisms
 - Memory statistics and debugging
 
+
 ### 3. Semantic Caching
 
 Intelligent caching reduces costs by 70%+ with semantic matching:
@@ -308,10 +337,12 @@ Intelligent caching reduces costs by 70%+ with semantic matching:
 ```python
 from fluxgraph import FluxApp
 
+
 app = FluxApp(
     enable_agent_cache=True,
     cache_strategy="hybrid"  # "exact", "semantic", or "hybrid"
 )
+
 
 @app.agent()
 async def expensive_agent(query: str, cache) -> dict:
@@ -322,6 +353,7 @@ async def expensive_agent(query: str, cache) -> dict:
     
     result = await expensive_llm_call(query)
     return {"answer": result}
+
 
 # Manual cache control
 cache.set(query, result, ttl=3600)  # 1 hour
@@ -352,11 +384,13 @@ stats = cache.get_stats()  # Hit rate, size, etc.
 from fluxgraph import FluxApp
 from fluxgraph.core import MemoryType
 
+
 app = FluxApp(
     enable_advanced_memory=True,
     enable_agent_cache=True,
     enable_rag=True
 )
+
 
 @app.agent()
 async def support_bot(
@@ -396,33 +430,40 @@ async def support_bot(
     return {"response": response, "sources": kb_results}
 ```
 
+
 ### Research Pipeline
 
 ```python
 from fluxgraph import FluxApp
 from fluxgraph.core import WorkflowBuilder
 
+
 app = FluxApp(enable_workflows=True)
+
 
 async def web_search_agent(state):
     results = await search_web(state.get("query"))
     state.update("web_results", results)
     return results
 
+
 async def analysis_agent(state):
     analysis = await analyze_data(state.get("web_results"))
     state.update("analysis", analysis)
     return analysis
+
 
 async def synthesis_agent(state):
     report = await synthesize(state.get("analysis"))
     state.update("final_report", report)
     return report
 
+
 def quality_check(state):
     if state.get("analysis").get("confidence") < 0.8:
         return "retry"
     return "synthesize"
+
 
 workflow = (WorkflowBuilder("research")
     .add_agent("searcher", web_search_agent)
@@ -436,8 +477,10 @@ workflow = (WorkflowBuilder("research")
     .start_from("searcher")
     .build())
 
+
 result = await workflow.execute({"query": "AI trends 2025"})
 ```
+
 
 ### Multi-Agent System
 
@@ -452,6 +495,7 @@ async def supervisor(task: str, call_agent, broadcast) -> dict:
     )
     return {"results": analyses}
 ```
+
 
 ---
 
@@ -479,10 +523,12 @@ app = FluxApp(
 )
 ```
 
+
 ### Streaming Responses
 
 ```python
 from fastapi.responses import StreamingResponse
+
 
 @app.api.get("/stream/{agent_name}")
 async def stream_agent(agent_name: str, query: str):
@@ -493,6 +539,7 @@ async def stream_agent(agent_name: str, query: str):
             yield f"data: {chunk}\n\n"
     return StreamingResponse(generate(), media_type="text/event-stream")
 ```
+
 
 ### Security Features
 
@@ -532,6 +579,7 @@ async def critical_agent(action: str) -> dict:
     return {"status": "rejected"}
 ```
 
+
 ### Batch Processing
 
 ```python
@@ -543,10 +591,12 @@ job_id = await app.batch_processor.submit_batch(
     max_concurrent=50
 )
 
+
 # Check status
 status = app.batch_processor.get_job_status(job_id)
 # {completed: 850, failed: 2, pending: 148}
 ```
+
 
 ### Cost Tracking
 
@@ -558,6 +608,7 @@ costs = app.orchestrator.cost_tracker.get_summary()
 #   "summary_agent": {"cost": "$0.87", "calls": 89}
 # }
 ```
+
 
 ---
 
@@ -581,16 +632,19 @@ services:
       - redis
     command: gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker
 
+
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
 
   redis:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
 ```
+
 
 ### Kubernetes
 
@@ -620,6 +674,7 @@ spec:
             cpu: "2000m"
 ```
 
+
 ---
 
 ## API Reference
@@ -627,7 +682,7 @@ spec:
 ### Core Endpoints
 
 | Endpoint | Method | Description |
-|----------|--------|-------------|
+| :-- | :-- | :-- |
 | `/ask/{agent}` | POST | Execute agent |
 | `/stream/{agent}` | GET | Stream response |
 | `/workflows` | GET | List workflows |
@@ -638,6 +693,7 @@ spec:
 | `/system/status` | GET | System health |
 | `/system/costs` | GET | Cost summary |
 
+
 ---
 
 ## Supported Integrations
@@ -645,7 +701,7 @@ spec:
 ### LLM Providers
 
 | Provider | Models | Streaming | Cost Tracking |
-|----------|--------|-----------|---------------|
+| :-- | :-- | :-- | :-- |
 | OpenAI | GPT-3.5, GPT-4, GPT-4 Turbo | ✅ | ✅ |
 | Anthropic | Claude 3 (Haiku, Sonnet, Opus) | ✅ | ✅ |
 | Google | Gemini Pro, Ultra | ✅ | ✅ |
@@ -656,11 +712,12 @@ spec:
 ### Memory Backends
 
 | Backend | Use Case | Configuration |
-|---------|----------|---------------|
+| :-- | :-- | :-- |
 | PostgreSQL | Production persistence | `DATABASE_URL` |
 | Redis | Fast session storage | `REDIS_URL` |
 | SQLite | Development/testing | Local file |
 | In-Memory | Temporary stateless | None |
+
 
 ---
 
@@ -685,9 +742,10 @@ Graph workflows, advanced memory, semantic caching, all enterprise features
 ### 🚧 v3.1 (Q1 2026)
 
 - Visual workflow designer UI
-- Agent learning & optimization
+- Agent learning \& optimization
 - Multi-modal workflows
 - Enhanced observability
+
 
 ### 📋 v3.2 (Q2 2026)
 
@@ -698,7 +756,7 @@ Graph workflows, advanced memory, semantic caching, all enterprise features
 
 ---
 
-## Community & Support
+## Community \& Support
 
 - **Documentation**: [fluxgraph.readthedocs.io](https://fluxgraph.readthedocs.io)
 - **Discord**: [Join Community](https://discord.gg/Z9bAqjYvPc)
@@ -710,7 +768,7 @@ Graph workflows, advanced memory, semantic caching, all enterprise features
 ## Contributing
 
 ```bash
-git clone https://github.com/ihtesham-jahangir/fluxgraph.git
+git clone [https://github.com/ihtesham-jahangir/fluxgraph.git](https://github.com/ihtesham-jahangir/fluxgraph.git)
 cd fluxgraph
 python -m venv venv
 source venv/bin/activate
@@ -732,9 +790,764 @@ See [LICENSE](LICENSE) file for details.
 
 <div align="center">
   <p><strong>FluxGraph 3.0</strong></p>
+  ```
   <p>The most advanced open-source AI agent framework</p>
+  ```
   <p>Graph workflows • Semantic caching • Hybrid memory • Enterprise security</p>
   <br/>
   <p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
+  ```
   <p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
+  ```
 </div>
+Perfect! Here's a comprehensive **EXAMPLES.md** file with working code examples organized by use case:
+
+# FluxGraph Examples
+
+Complete code examples for FluxGraph v3.2 - Copy, paste, and run!
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Basic Agents](#basic-agents)
+- [LLM-Powered Agents](#llm-powered-agents)
+- [Multi-Agent Systems](#multi-agent-systems)
+- [Workflow Examples](#workflow-examples)
+- [Memory \& Caching](#memory--caching)
+- [Production Examples](#production-examples)
+- [Advanced Features](#advanced-features)
+
+***
+
+## Getting Started
+
+### 1. Hello World Agent
+
+```python
+# examples/01_hello_world.py
+from fluxgraph import FluxApp
+
+app = FluxApp(title="Hello World App")
+
+@app.agent()
+async def greet(name: str, **kwargs) -> dict:
+    """Simple greeting agent."""
+    return {"message": f"Hello, {name}!"}
+
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=8000)
+```
+
+**Test it:**
+
+```bash
+python examples/01_hello_world.py
+
+# In another terminal:
+curl -X POST http://127.0.0.1:8000/ask/greet \
+  -H "Content-Type: application/json" \
+  -d '{"name": "World"}'
+```
+
+
+***
+
+## Basic Agents
+
+### 2. Calculator Agent
+
+```python
+# examples/02_calculator.py
+from fluxgraph import FluxApp
+
+app = FluxApp(title="Calculator App")
+
+@app.agent()
+async def calculate(a: float, b: float, operation: str = "add", **kwargs) -> dict:
+    """
+    Perform mathematical operations.
+    
+    Args:
+        a: First number
+        b: Second number
+        operation: One of: add, subtract, multiply, divide, power
+    """
+    operations = {
+        "add": a + b,
+        "subtract": a - b,
+        "multiply": a * b,
+        "divide": a / b if b != 0 else "Error: Division by zero",
+        "power": a ** b
+    }
+    
+    result = operations.get(operation, "Unknown operation")
+    
+    return {
+        "result": result,
+        "operation": operation,
+        "inputs": {"a": a, "b": b}
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+**Test it:**
+
+```bash
+curl -X POST http://127.0.0.1:8000/ask/calculate \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10, "b": 5, "operation": "multiply"}'
+
+# Response: {"result": 50, "operation": "multiply", "inputs": {"a": 10, "b": 5}}
+```
+
+
+### 3. Text Processing Agent
+
+```python
+# examples/03_text_processor.py
+from fluxgraph import FluxApp
+
+app = FluxApp(title="Text Processing")
+
+@app.agent()
+async def text_stats(text: str, **kwargs) -> dict:
+    """Analyze text and return statistics."""
+    words = text.split()
+    
+    return {
+        "character_count": len(text),
+        "word_count": len(words),
+        "sentence_count": text.count('.') + text.count('!') + text.count('?'),
+        "uppercase_count": sum(1 for c in text if c.isupper()),
+        "lowercase_count": sum(1 for c in text if c.islower()),
+        "unique_words": len(set(words))
+    }
+
+@app.agent()
+async def transform_text(text: str, operation: str = "upper", **kwargs) -> dict:
+    """Transform text in various ways."""
+    transformations = {
+        "upper": text.upper(),
+        "lower": text.lower(),
+        "title": text.title(),
+        "reverse": text[::-1],
+        "capitalize": text.capitalize()
+    }
+    
+    return {
+        "original": text,
+        "transformed": transformations.get(operation, text),
+        "operation": operation
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+***
+
+## LLM-Powered Agents
+
+### 4. OpenAI-Powered Assistant
+
+```python
+# examples/04_openai_assistant.py
+import os
+from fluxgraph import FluxApp
+from fluxgraph.models import OpenAIProvider
+
+app = FluxApp(title="AI Assistant")
+
+llm = OpenAIProvider(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    model="gpt-4"
+)
+
+@app.agent()
+async def ai_assistant(query: str, **kwargs) -> dict:
+    """AI assistant powered by GPT-4."""
+    response = await llm.generate(
+        prompt=f"You are a helpful assistant. Answer this question: {query}",
+        max_tokens=500
+    )
+    
+    return {
+        "answer": response.get("text"),
+        "model": "gpt-4",
+        "query": query
+    }
+
+@app.agent()
+async def code_reviewer(code: str, language: str = "python", **kwargs) -> dict:
+    """Review code and provide feedback."""
+    prompt = f"""Review this {language} code and provide:
+1. Issues found
+2. Best practices recommendations
+3. Security concerns
+4. Performance suggestions
+
+Code:
+```
+
+{code}
+
+```"""
+    
+    response = await llm.generate(prompt=prompt, max_tokens=1000)
+    
+    return {
+        "review": response.get("text"),
+        "language": language
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+### 5. Multi-LLM Comparison
+
+```python
+# examples/05_multi_llm.py
+import os
+from fluxgraph import FluxApp
+from fluxgraph.models import OpenAIProvider, AnthropicProvider
+
+app = FluxApp(title="Multi-LLM Comparison")
+
+openai_llm = OpenAIProvider(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    model="gpt-4"
+)
+
+anthropic_llm = AnthropicProvider(
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
+    model="claude-3-sonnet-20240229"
+)
+
+@app.agent()
+async def compare_responses(question: str, **kwargs) -> dict:
+    """Get responses from both GPT-4 and Claude."""
+    
+    # Get OpenAI response
+    openai_response = await openai_llm.generate(prompt=question)
+    
+    # Get Anthropic response
+    anthropic_response = await anthropic_llm.generate(prompt=question)
+    
+    return {
+        "question": question,
+        "gpt4_response": openai_response.get("text"),
+        "claude_response": anthropic_response.get("text"),
+        "models": {
+            "gpt4": "gpt-4",
+            "claude": "claude-3-sonnet"
+        }
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+***
+
+## Multi-Agent Systems
+
+### 6. Research Team
+
+```python
+# examples/06_research_team.py
+from fluxgraph import FluxApp
+
+app = FluxApp(title="Research Team")
+
+@app.agent()
+async def researcher(topic: str, **kwargs) -> dict:
+    """Research agent that gathers information."""
+    # Simulate research
+    findings = f"Research findings about {topic}: [data collected]"
+    
+    return {
+        "topic": topic,
+        "findings": findings,
+        "sources": ["source1", "source2", "source3"]
+    }
+
+@app.agent()
+async def analyst(data: dict, **kwargs) -> dict:
+    """Analyze research findings."""
+    analysis = f"Analysis of {data.get('topic')}: [insights generated]"
+    
+    return {
+        "analysis": analysis,
+        "confidence": 0.85,
+        "key_points": ["point1", "point2", "point3"]
+    }
+
+@app.agent()
+async def writer(analysis: dict, **kwargs) -> dict:
+    """Write a report based on analysis."""
+    report = f"""
+    # Research Report
+    
+    ## Topic
+    {analysis.get('topic', 'Unknown')}
+    
+    ## Analysis
+    {analysis.get('analysis')}
+    
+    ## Confidence Score
+    {analysis.get('confidence', 0.0)}
+    """
+    
+    return {
+        "report": report,
+        "status": "completed"
+    }
+
+@app.agent()
+async def supervisor(topic: str, call_agent, **kwargs) -> dict:
+    """Orchestrate the research team."""
+    
+    # Step 1: Research
+    research_result = await call_agent("researcher", topic=topic)
+    
+    # Step 2: Analyze
+    analysis_result = await call_agent("analyst", data=research_result)
+    
+    # Step 3: Write report
+    final_report = await call_agent("writer", analysis=analysis_result)
+    
+    return {
+        "topic": topic,
+        "final_report": final_report,
+        "pipeline": ["researcher", "analyst", "writer"]
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+***
+
+## Workflow Examples
+
+### 7. Content Generation Pipeline
+
+```python
+# examples/07_workflow.py
+from fluxgraph import FluxApp
+from fluxgraph.core import WorkflowBuilder
+
+app = FluxApp(enable_workflows=True)
+
+async def ideation_agent(state, **kwargs):
+    """Generate content ideas."""
+    topic = state.get("topic")
+    ideas = [f"Idea {i+1} about {topic}" for i in range(3)]
+    state.update("ideas", ideas)
+    return ideas
+
+async def outline_agent(state, **kwargs):
+    """Create content outline."""
+    ideas = state.get("ideas")
+    outline = "\n".join([f"- {idea}" for idea in ideas])
+    state.update("outline", outline)
+    return outline
+
+async def draft_agent(state, **kwargs):
+    """Write the draft."""
+    outline = state.get("outline")
+    draft = f"Draft content based on:\n{outline}"
+    state.update("draft", draft)
+    return draft
+
+async def editor_agent(state, **kwargs):
+    """Edit and improve the draft."""
+    draft = state.get("draft")
+    edited = f"Edited version of:\n{draft}"
+    state.update("final_content", edited)
+    return edited
+
+def quality_check(state):
+    """Check if content meets quality standards."""
+    # In real scenario, check actual quality metrics
+    return "publish" if len(state.get("draft", "")) > 50 else "revise"
+
+# Build workflow
+workflow = (WorkflowBuilder("content_pipeline")
+    .add_agent("ideation", ideation_agent)
+    .add_agent("outline", outline_agent)
+    .add_agent("draft", draft_agent)
+    .add_agent("editor", editor_agent)
+    .connect("ideation", "outline")
+    .connect("outline", "draft")
+    .branch("draft", quality_check, {
+        "revise": "ideation",
+        "publish": "editor"
+    })
+    .start_from("ideation")
+    .build())
+
+app.register_workflow("content_generation", workflow)
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+***
+
+## Memory \& Caching
+
+### 8. Chatbot with Memory
+
+```python
+# examples/08_memory_chatbot.py
+from fluxgraph import FluxApp
+from fluxgraph.core import MemoryType
+
+app = FluxApp(
+    enable_advanced_memory=True,
+    enable_agent_cache=True,
+    cache_strategy="semantic"
+)
+
+@app.agent()
+async def chatbot(
+    message: str, 
+    user_id: str,
+    advanced_memory=None,
+    cache=None,
+    **kwargs
+) -> dict:
+    """Chatbot with conversation memory."""
+    
+    # Check cache for similar questions
+    if cache:
+        cached_response = cache.get(message, threshold=0.9)
+        if cached_response:
+            return {
+                "response": cached_response,
+                "source": "cache",
+                "cache_hit": True
+            }
+    
+    # Recall recent conversation
+    if advanced_memory:
+        recent_messages = advanced_memory.recall_recent(k=5)
+        context = "\n".join([entry.content for entry in recent_messages])
+    else:
+        context = ""
+    
+    # Generate response (in real scenario, use LLM)
+    response = f"Response to '{message}' with context: {context[:100]}..."
+    
+    # Store in memory
+    if advanced_memory:
+        advanced_memory.store(
+            f"User: {message}\nBot: {response}",
+            MemoryType.SHORT_TERM,
+            importance=0.7,
+            metadata={"user_id": user_id}
+        )
+    
+    # Cache the response
+    if cache:
+        cache.set(message, response, ttl=3600)
+    
+    return {
+        "response": response,
+        "source": "generated",
+        "cache_hit": False,
+        "context_used": bool(context)
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+***
+
+## Production Examples
+
+### 9. Customer Support System
+
+```python
+# examples/09_customer_support.py
+from fluxgraph import FluxApp
+from fluxgraph.core import MemoryType
+import os
+
+app = FluxApp(
+    enable_advanced_memory=True,
+    enable_agent_cache=True,
+    enable_rag=True
+)
+
+@app.agent()
+async def support_bot(
+    query: str,
+    customer_id: str,
+    advanced_memory=None,
+    cache=None,
+    rag=None,
+    **kwargs
+) -> dict:
+    """Enterprise customer support bot."""
+    
+    # 1. Check cache
+    if cache:
+        cached = cache.get(query, threshold=0.85)
+        if cached:
+            return {"response": cached, "source": "cache"}
+    
+    # 2. Search knowledge base
+    kb_results = []
+    if rag:
+        kb_results = await rag.query(query, top_k=3)
+    
+    # 3. Get customer history
+    customer_history = []
+    if advanced_memory:
+        customer_history = advanced_memory.recall_by_metadata(
+            {"customer_id": customer_id},
+            k=5
+        )
+    
+    # 4. Generate response (use LLM with context)
+    context = {
+        "kb_articles": kb_results,
+        "customer_history": [h.content for h in customer_history]
+    }
+    
+    response = f"Support response for: {query}\nBased on: {len(kb_results)} KB articles"
+    
+    # 5. Store interaction
+    if advanced_memory:
+        advanced_memory.store(
+            f"Query: {query}\nResponse: {response}",
+            MemoryType.EPISODIC,
+            importance=0.9,
+            metadata={
+                "customer_id": customer_id,
+                "resolved": True,
+                "category": "support"
+            }
+        )
+    
+    # 6. Cache response
+    if cache:
+        cache.set(query, response, ttl=7200)
+    
+    return {
+        "response": response,
+        "sources": kb_results,
+        "customer_history_count": len(customer_history),
+        "cache_hit": False
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+### 10. Production API with Security
+
+```python
+# examples/10_production_api.py
+from fluxgraph import FluxApp
+from pydantic import BaseModel
+from typing import Optional
+
+app = FluxApp(
+    title="Production API",
+    enable_security=True,
+    enable_audit_logging=True,
+    enable_streaming=True,
+    cors_origins=["https://example.com"]
+)
+
+class TaskRequest(BaseModel):
+    task: str
+    priority: int = 5
+    metadata: Optional[dict] = None
+
+@app.agent()
+async def process_task(request: TaskRequest, **kwargs) -> dict:
+    """Process production tasks with validation."""
+    # Security is handled automatically
+    # Audit logging is automatic
+    # PII detection is automatic
+    
+    result = f"Processing: {request.task} (Priority: {request.priority})"
+    
+    return {
+        "status": "completed",
+        "result": result,
+        "priority": request.priority,
+        "metadata": request.metadata or {}
+    }
+
+@app.agent()
+async def health_check(**kwargs) -> dict:
+    """Health check endpoint for monitoring."""
+    return {
+        "status": "healthy",
+        "version": app.version,
+        "uptime": "active"
+    }
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
+```
+
+
+***
+
+## Advanced Features
+
+### 11. Batch Processing
+
+```python
+# examples/11_batch_processing.py
+from fluxgraph import FluxApp
+from typing import List
+
+app = FluxApp(enable_orchestration=True)
+
+@app.agent()
+async def data_processor(item: dict, batch_processor=None, **kwargs) -> dict:
+    """Process individual data items."""
+    # Simulate processing
+    processed = {
+        "id": item.get("id"),
+        "processed": True,
+        "result": f"Processed {item.get('value')}"
+    }
+    return processed
+
+@app.agent()
+async def batch_coordinator(
+    items: List[dict],
+    batch_processor=None,
+    **kwargs
+) -> dict:
+    """Coordinate batch processing of multiple items."""
+    
+    if not batch_processor:
+        # Fallback to sequential processing
+        results = []
+        for item in items:
+            result = await data_processor(item)
+            results.append(result)
+        return {"results": results, "mode": "sequential"}
+    
+    # Submit batch job
+    job_id = await batch_processor.submit_batch(
+        agent_name="data_processor",
+        payloads=[{"item": item} for item in items],
+        max_concurrent=10
+    )
+    
+    # Wait for completion (or return job_id for async processing)
+    return {
+        "job_id": job_id,
+        "total_items": len(items),
+        "mode": "batch"
+    }
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+### 12. Streaming Responses
+
+```python
+# examples/12_streaming.py
+from fluxgraph import FluxApp
+from fastapi.responses import StreamingResponse
+
+app = FluxApp(enable_streaming=True)
+
+@app.agent()
+async def stream_data(query: str, **kwargs) -> dict:
+    """Generate streaming response."""
+    # This returns complete data, but can be streamed by the API
+    chunks = [f"Chunk {i}: {query}" for i in range(5)]
+    return {
+        "query": query,
+        "chunks": chunks,
+        "total_chunks": len(chunks)
+    }
+
+# Custom streaming endpoint
+@app.api.get("/stream/{agent_name}")
+async def stream_agent_response(agent_name: str, query: str):
+    """Stream agent responses in real-time."""
+    async def generate():
+        # Simulate streaming
+        for i in range(5):
+            chunk = f"data: Chunk {i} for query: {query}\n\n"
+            yield chunk
+    
+    return StreamingResponse(generate(), media_type="text/event-stream")
+
+if __name__ == "__main__":
+    app.run()
+```
+
+
+***
+
+## Testing Your Agents
+
+### Test Script Template
+
+```python
+# test_agent.py
+import requests
+import json
+
+BASE_URL = "http://127.0.0.1:8000"
+
+def test_agent(agent_name: str, payload: dict):
+    """Test any FluxGraph agent."""
+    url = f"{BASE_URL}/ask/{agent_name}"
+    
+    response = requests.post(
+        url,
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(payload)
+    )
+    
+    print(f"\n{'='*60}")
+    print(f"Testing: {agent_name}")
+    print(f"{'='*60}")
+    print(f"Status Code: {response.status_code}")
+    print(f"Response:\n{json.dumps(response.json(), indent=2)}")
+    print(f"{'='*60}\n")
+
+if __name__ == "__main__":
+    # Test greet agent
+    test_agent("greet", {"name": "FluxGraph"})
+    
+    # Test calculator
+    test_agent("calculate", {"a": 15, "b": 3, "operation": "multiply"})
+    
+    # Test chatbot
+    test_agent("chatbot", {
+        "message": "What is AI?",
+        "user_id": "user123"
+    })
+```
+
+
+***
