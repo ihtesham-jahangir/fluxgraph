@@ -1,7 +1,3 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
-
-# ⚠️ Security features not available ok now update my readme.md both supported pypi and github <div align="center">
-
   <img src="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/logo.jpeg" alt="FluxGraph Logo" width="200" height="200"/>
 
 # FluxGraph
