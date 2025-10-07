@@ -19,9 +19,6 @@
   <a href="https://pepy.tech/projects/fluxgraph">
     <img src="https://static.pepy.tech/personalized-badge/fluxgraph?period=month&units=international_system&left_color=black&right_color=blue&left_text=Downloads%2Fmonth" alt="Monthly downloads"/>
   </a>
-  <a href="https://pepy.tech/projects/fluxgraph">
-    <img src="https://static.pepy.tech/personalized-badge/fluxgraph?period=day&units=international_system&left_color=black&right_color=orange&left_text=Downloads%2Fday" alt="Daily downloads"/>
-  </a>
   <a href="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square" alt="License"/>
   </a>
