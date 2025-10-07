@@ -1,15 +1,34 @@
+<p align="center">
   <img src="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/logo.jpeg" alt="FluxGraph Logo" width="200" height="200"/>
+</p>
 
-# FluxGraph
+<h1 align="center">FluxGraph</h1>
 
-**Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems**
+<p align="center"><strong>Production-grade AI agent orchestration framework for building secure, scalable multi-agent systems</strong></p>
 
-[![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
-[![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/fluxgraph?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/fluxgraph)
-[![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-available-brightgreen?style=flat-square)](https://fluxgraph.readthedocs.io)
-[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=flat-square)](https://discord.gg/Z9bAqjYvPc)
+<p align="center">
+  <a href="https://pypi.org/project/fluxgraph/">
+    <img src="https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square" alt="PyPI version"/>
+  </a>
+  <a href="https://pypi.org/project/fluxgraph/">
+    <img src="https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square" alt="Python versions"/>
+  </a>
+  <a href="https://pepy.tech/projects/fluxgraph">
+    <img src="https://static.pepy.tech/personalized-badge/fluxgraph?period=total&units=international_system&left_color=black&right_color=green&left_text=Downloads%20(all%20time)" alt="All-time downloads"/>
+  </a>
+  <a href="https://pepy.tech/projects/fluxgraph">
+    <img src="https://static.pepy.tech/personalized-badge/fluxgraph?period=month&units=international_system&left_color=black&right_color=blue&left_text=Downloads%2Fmonth" alt="Monthly downloads"/>
+  </a>
+  <a href="https://pepy.tech/projects/fluxgraph">
+    <img src="https://static.pepy.tech/personalized-badge/fluxgraph?period=day&units=international_system&left_color=black&right_color=orange&left_text=Downloads%2Fday" alt="Daily downloads"/>
+  </a>
+  <a href="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square" alt="License"/>
+  </a>
+  <a href="https://fluxgraph.readthedocs.io">
+    <img src="https://img.shields.io/badge/docs-available-brightgreen?style=flat-square" alt="Documentation"/>
+  </a>
+</p>
 
 ---
 
