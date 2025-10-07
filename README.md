@@ -162,7 +162,7 @@ from fluxgraph import FluxApp
 app = FluxApp(title="My AI App")
 
 @app.agent()
-async def assistant(message: str) -> dict:
+async def assistant(message: str,**kwargs) -> dict:
     """Your first AI agent."""
     return {"response": f"You said: {message}"}
 
