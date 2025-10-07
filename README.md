@@ -7,7 +7,6 @@
 [![PyPI version](https://img.shields.io/pypi/v/fluxgraph?color=blue&style=flat-square)](https://pypi.org/project/fluxgraph/)
 [![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square)](https://pypi.org/project/fluxgraph/)
 [![PyPI Downloads](https://static.pepy.tech/personalized-badge/fluxgraph?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/fluxgraph)
-[![GitHub Clones](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.star-history.com%2Frepos%2Fihtesham-jahangir%2Ffluxgraph%2Fclones&query=%24.total&label=GitHub%20clones&suffix=%2Fmonth&color=yellow&style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/graphs/traffic)
 [![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-available-brightgreen?style=flat-square)](https://fluxgraph.readthedocs.io)
 [![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord&style=flat-square)](https://discord.gg/Z9bAqjYvPc)
