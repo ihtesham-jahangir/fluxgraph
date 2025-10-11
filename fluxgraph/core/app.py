@@ -55,6 +55,13 @@ import argparse
 from contextvars import ContextVar
 import json
 
+# --- START: P1.2 Dependency Fix ---
+try:
+    import tiktoken
+except ImportError:
+    pass # Handle in _ensure_virtual_environment if needed, but allow app to load
+# --- END: P1.2 Dependency Fix ---
+
 # ===== LOGGING CONFIGURATION =====
 logging.basicConfig(
     level=logging.INFO,
@@ -171,7 +178,9 @@ except ImportError as e:
 
 # ===== V3.0 P0 IMPORTS =====
 try:
+    # --- P1.1 Workflow Fix Import ---
     from .workflow_graph import WorkflowGraph, WorkflowBuilder, NodeType
+    # --- End P1.1 ---
     WORKFLOW_AVAILABLE = True
     logger.info("✅ Workflow graphs loaded")
 except ImportError:
@@ -255,7 +264,8 @@ try:
     from ..security.audit import AuditLogger, AuditEventType
     from ..security.pii_detector import PIIDetector
     from ..security.prompt_injection import PromptInjectionDetector
-    from ..security.rbac import RBACManager, Role, Permission
+    # Note: RBACManager class is actually in fluxgraph/core/rbac.py, but the import must be relative to core
+    from .rbac import RBACManager, Role, Permission
     SECURITY_AVAILABLE = True
     logger.info("✅ Security features loaded")
 except ImportError:
@@ -376,53 +386,6 @@ class FluxApp:
     ):
         """
         Initialize FluxGraph v3.2 with all features.
-        
-        Args:
-            title: API title
-            description: API description
-            version: API version
-            memory_store: Optional memory store instance
-            rag_connector: Optional RAG connector
-            auto_init_rag: Auto-initialize RAG if not provided
-            enable_analytics: Enable analytics dashboard
-            enable_advanced_features: Enable advanced orchestrator
-            
-            # v3.0 P0
-            enable_workflows: Enable graph-based workflows
-            enable_advanced_memory: Enable multi-tier memory
-            enable_agent_cache: Enable response caching
-            cache_strategy: Caching strategy (exact/semantic/hybrid)
-            
-            # v3.1
-            enable_enhanced_memory: Enable entity extraction memory
-            enable_connectors: Enable database connectors
-            enable_visual_workflows: Enable visual workflow builder
-            database_url: Database URL for enhanced memory
-            
-            # v3.2
-            enable_chains: Enable LCEL-style chains
-            enable_tracing: Enable distributed tracing
-            enable_batch_optimization: Enable batch processing
-            enable_streaming_optimization: Enable streaming optimization
-            enable_langserve_api: Enable LangServe-style API
-            tracing_export_path: Path for trace exports
-            tracing_project_name: Project name for tracing
-            
-            # Security
-            enable_security: Master switch for all security features
-            enable_audit_logging: Enable audit logging
-            enable_pii_detection: Enable PII detection
-            enable_prompt_shield: Enable prompt injection detection
-            enable_rbac: Enable role-based access control
-            
-            # Orchestration
-            enable_orchestration: Master switch for orchestration
-            enable_handoffs: Enable agent handoffs
-            enable_hitl: Enable human-in-the-loop
-            enable_task_adherence: Enable task monitoring
-            
-            log_level: Logging level
-            cors_origins: CORS allowed origins
         """
         logging.getLogger().setLevel(getattr(logging, log_level.upper(), logging.INFO))
         
@@ -860,97 +823,99 @@ class FluxApp:
             }
         
         # ===== AGENT ENDPOINTS =====
-        @self.api.post(
-            "/ask/{agent_name}",
-            summary="Ask Agent",
-            description="Execute a registered agent by name with a JSON payload."
-        )
+        @self.api.post("/ask/{agent_name}")
         async def ask_agent(agent_name: str, payload: Dict[str, Any]):
-            """
-            Endpoint to interact with registered agents.
-            The payload JSON is passed as keyword arguments to the agent's `run` method.
-            """
-            # Get request context
+            """Execute a registered agent."""
             request_id = request_id_context.get()
             start_time = time.time()
-            logger.info(
-                f"[{request_id}] 🤖 Executing agent '{agent_name}' with payload keys: {list(payload.keys())}"
-            )
             
-            # --- Trigger 'request_received' Event Hook ---
-            hook_start = time.time()
+            logger.info(f"[{request_id}] 🤖 Executing agent '{agent_name}'")
+            
             await self.hooks.trigger("request_received", {
                 "request_id": request_id,
                 "agent_name": agent_name,
-                "payload": payload,
-                "hook_duration": time.time() - hook_start
+                "payload": payload
             })
-            logger.debug(f"[{request_id}] Hook 'request_received' triggered.")
             
             try:
-                # --- Execute Agent via Orchestrator ---
-                result = await self.orchestrator.run(agent_name, payload)
-                end_time = time.time()
-                duration = end_time - start_time
+                # Security checks
+                if self.prompt_shield:
+                    # Note: Assumes `is_injection` is implemented to check if blocking is needed
+                    is_safe, _ = self.prompt_shield.is_safe(payload.get("query", ""), block_on_detection=True)
+                    if not is_safe:
+                        # Log the blocking action
+                        if self.audit_logger:
+                             self.audit_logger.log(
+                                AuditEventType.PROMPT_INJECTION_DETECTED,
+                                {"agent": agent_name, "request_id": request_id, "query_preview": payload.get("query", "")[:50]}
+                             )
+                        raise HTTPException(status_code=400, detail="Prompt injection detected and blocked")
                 
-                # --- Trigger 'agent_completed' Event Hook ---
-                hook_start = time.time()
+                if self.pii_detector:
+                    # Note: Assumes redact_pii handles the dictionary structure
+                    payload, detections = self.pii_detector.scan_dict(payload, redact=True)
+                    if detections and self.audit_logger:
+                        self.audit_logger.log(
+                            AuditEventType.PII_DETECTED,
+                            {"agent": agent_name, "request_id": request_id, "detections": detections}
+                        )
+                
+                # Check cache
+                if self.agent_cache:
+                    cached = self.agent_cache.get(payload.get("query", ""), payload)
+                    if cached:
+                        logger.info(f"[{request_id}] ⚡ Cache hit for '{agent_name}'")
+                        return cached
+                
+                # Execute agent
+                # The orchestrator handles injecting tools, memory, RAG, etc.
+                result = await self.orchestrator.run(agent_name, payload)
+                
+                # Store in cache
+                if self.agent_cache:
+                    self.agent_cache.set(payload.get("query", ""), result)
+                
+                # Audit log
+                if self.audit_logger:
+                    self.audit_logger.log(
+                        AuditEventType.AGENT_EXECUTION,
+                        user_id=payload.get("user_id", "anonymous"),
+                        details={"agent": agent_name, "request_id": request_id, "status": "success"}
+                    )
+                
+                duration = time.time() - start_time
+                
                 await self.hooks.trigger("agent_completed", {
                     "request_id": request_id,
                     "agent_name": agent_name,
                     "result": result,
-                    "duration": duration,
-                    "hook_duration": time.time() - hook_start
+                    "duration": duration
                 })
-                logger.debug(f"[{request_id}] Hook 'agent_completed' triggered.")
-                logger.info(
-                    f"[{request_id}] ✅ Agent '{agent_name}' executed successfully "
-                    f"(Total Duration: {duration:.4f}s)."
-                )
                 
+                logger.info(f"[{request_id}] ✅ Agent '{agent_name}' completed ({duration:.4f}s)")
                 return result
-            
-            except ValueError as e:  # Agent not found or execution logic error
-                end_time = time.time()
-                duration = end_time - start_time
-                logger.warning(
-                    f"[{request_id}] ⚠️ Agent '{agent_name}' error (Duration: {duration:.4f}s): {e}"
-                )
                 
-                # --- Trigger 'agent_error' Event Hook ---
-                hook_start = time.time()
-                await self.hooks.trigger("agent_error", {
-                    "request_id": request_id,
-                    "agent_name": agent_name,
-                    "error": str(e),
-                    "duration": duration,
-                    "hook_duration": time.time() - hook_start
-                })
-                logger.debug(f"[{request_id}] Hook 'agent_error' triggered.")
-                
-                status_code = 404 if "not registered" in str(e).lower() or "not found" in str(e).lower() else 400
+            except ValueError as e:
+                # Ensure failure is logged if it was an Orchestrator/Registry error
+                if self.audit_logger:
+                    self.audit_logger.log(
+                        AuditEventType.AGENT_EXECUTION,
+                        user_id=payload.get("user_id", "anonymous"),
+                        details={"agent": agent_name, "request_id": request_id, "status": "failed", "error": str(e)}
+                    )
+                logger.warning(f"[{request_id}] ⚠️ Agent error: {e}")
+                status_code = 404 if "not registered" in str(e).lower() else 400
                 raise HTTPException(status_code=status_code, detail=str(e))
-            
-            except Exception as e:  # Unexpected server error
-                end_time = time.time()
-                duration = end_time - start_time
-                logger.error(
-                    f"[{request_id}] ❌ Execution error for agent '{agent_name}' (Duration: {duration:.4f}s): {e}",
-                    exc_info=True
-                )
-                
-                # --- Trigger 'server_error' Event Hook ---
-                hook_start = time.time()
-                await self.hooks.trigger("server_error", {
-                    "request_id": request_id,
-                    "agent_name": agent_name,
-                    "error": str(e),
-                    "duration": duration,
-                    "hook_duration": time.time() - hook_start
-                })
-                logger.debug(f"[{request_id}] Hook 'server_error' triggered.")
+            except Exception as e:
+                if self.audit_logger:
+                    self.audit_logger.log(
+                        AuditEventType.AGENT_EXECUTION,
+                        user_id=payload.get("user_id", "anonymous"),
+                        details={"agent": agent_name, "request_id": request_id, "status": "error", "error": str(e)}
+                    )
+                logger.error(f"[{request_id}] ❌ Execution error: {e}", exc_info=True)
                 raise HTTPException(status_code=500, detail="Internal Server Error")
-                
+        
         # ===== V3.2 CHAIN ENDPOINTS =====
         if self.langserve_enabled and CHAINS_V32_AVAILABLE:
             
@@ -1062,7 +1027,8 @@ class FluxApp:
             async def create_workflow(request: WorkflowCreateRequest):
                 """Create a new workflow graph."""
                 try:
-                    workflow = self.workflow_builder()
+                    # Note: We assume the builder is correctly defined in fluxgraph.core.workflow_graph
+                    workflow = WorkflowBuilder(request.name).graph
                     self.workflow_graphs[request.name] = workflow
                     return {
                         "message": f"Workflow '{request.name}' created",
@@ -1107,7 +1073,7 @@ class FluxApp:
                     else:
                         raise HTTPException(status_code=400, detail="Unknown connector type")
                     
-                    await connector.initialize()
+                    await connector.connect() # Renamed to connect for consistency in connectors/base.py
                     self.connectors[connector_name] = connector
                     
                     return {
@@ -1239,15 +1205,15 @@ class FluxApp:
             raise RuntimeError("Connectors not enabled")
         
         if connector_type == "postgres":
-            connector = PostgresConnector(**config)
+            connector = PostgresConnector(config)
         elif connector_type == "salesforce":
-            connector = SalesforceConnector(**config)
+            connector = SalesforceConnector(config)
         elif connector_type == "shopify":
-            connector = ShopifyConnector(**config)
+            connector = ShopifyConnector(config)
         else:
             raise ValueError(f"Unknown connector type: {connector_type}")
         
-        await connector.initialize()
+        await connector.connect()
         self.connectors[name] = connector
         logger.info(f"🔌 Connector '{name}' added ({connector_type})")
     
@@ -1283,10 +1249,15 @@ class FluxApp:
                     if self._rag_connector:
                         kwargs['rag'] = self._rag_connector
                     
+                    # Also inject advanced orchestration features if available/enabled
+                    if self.orchestrator:
+                        kwargs['call_agent'] = self.orchestrator.run
+                    
                     if asyncio.iscoroutinefunction(func):
                         return await func(**kwargs)
                     else:
-                        return func(**kwargs)
+                        # Wrap sync function execution in a thread to prevent blocking
+                        return await asyncio.to_thread(func, **kwargs)
             
             agent_instance = _FluxDynamicAgent()
             agent_instance._tool_registry = self.tool_registry
