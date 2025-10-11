@@ -264,7 +264,6 @@ try:
     from ..security.audit import AuditLogger, AuditEventType
     from ..security.pii_detector import PIIDetector
     from ..security.prompt_injection import PromptInjectionDetector
-    # Note: RBACManager class is actually in fluxgraph/core/rbac.py, but the import must be relative to core
     from .rbac import RBACManager, Role, Permission
     SECURITY_AVAILABLE = True
     logger.info("✅ Security features loaded")
@@ -328,17 +327,6 @@ class ConnectorConfigRequest(BaseModel):
 class FluxApp:
     """
     FluxGraph v3.2 - 100% COMPLETE ENTERPRISE APPLICATION
-    
-    The ultimate AI agent orchestration framework with every feature:
-    - Multi-agent coordination with advanced orchestration
-    - LCEL-style chains for LangChain compatibility
-    - Distributed tracing for full observability
-    - Advanced memory systems (short/long/episodic)
-    - Database connectors marketplace
-    - Visual workflow builder
-    - Security (audit, PII, RBAC, injection detection)
-    - Analytics and monitoring
-    - Production deployment ready
     """
 
     def __init__(
@@ -483,7 +471,7 @@ class FluxApp:
             self.agent_cache = None
             self.agent_cache_enabled = False
         
-        # ===== V3.1 FEATURES =====
+        # ===== V3.1 IMPORTS =====
         logger.info("🎉 Initializing v3.1 features...")
         
         # Enhanced Memory
@@ -1027,7 +1015,6 @@ class FluxApp:
             async def create_workflow(request: WorkflowCreateRequest):
                 """Create a new workflow graph."""
                 try:
-                    # Note: We assume the builder is correctly defined in fluxgraph.core.workflow_graph
                     workflow = WorkflowBuilder(request.name).graph
                     self.workflow_graphs[request.name] = workflow
                     return {
@@ -1065,11 +1052,11 @@ class FluxApp:
                 """Add a database connector."""
                 try:
                     if request.connector_type == "postgres":
-                        connector = PostgresConnector(**request.config)
+                        connector = PostgresConnector(request.config)
                     elif request.connector_type == "salesforce":
-                        connector = SalesforceConnector(**request.config)
+                        connector = SalesforceConnector(request.config)
                     elif request.connector_type == "shopify":
-                        connector = ShopifyConnector(**request.config)
+                        connector = ShopifyConnector(request.config)
                     else:
                         raise HTTPException(status_code=400, detail="Unknown connector type")
                     

@@ -40,13 +40,6 @@ def _count_tokens(text: str, model_name: str) -> int:
 class OllamaProvider(ModelProvider):
     """
     Ollama provider for local model inference.
-    
-    Supports all Ollama models:
-    - llama2, llama3
-    - mistral, mixtral
-    - codellama
-    - gemma, phi
-    - And more!
     """
     
     def __init__(self, config: ModelConfig):
@@ -147,6 +140,16 @@ class OllamaProvider(ModelProvider):
         except Exception as e:
             raise ModelProviderError(f"Ollama generation failed: {e}")
     
+    async def multimodal_generate(
+        self,
+        prompt: str,
+        media_inputs: List['MultiModalInput'],
+        system_message: Optional[str] = None,
+        **kwargs
+    ) -> ModelResponse:
+        """Ollama does not natively support multimodal generation in the /api/generate endpoint payload."""
+        raise NotImplementedError(f"OllamaProvider does not natively support multimodal generation.")
+
     async def chat(
         self,
         messages: List[Dict[str, str]],

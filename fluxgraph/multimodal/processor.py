@@ -36,14 +36,19 @@ class MultiModalInput:
         
         # Encode binary content
         if isinstance(content, bytes):
-            self.encoded_content = base64.b64encode(content).decode('utf-8')
+            # Store Base64 encoded string along with MIME type in metadata for LLM providers
+            mime_type = self.metadata.get("mime_type", f"image/{Path(self.metadata.get('filename', 'default.jpg')).suffix[1:]}")
+            # Create Data URI: data:mime_type;base64,content
+            self.encoded_content = f"data:{mime_type};base64,{base64.b64encode(content).decode('utf-8')}"
+            self.metadata["mime_type"] = mime_type
         else:
             self.encoded_content = content
     
     def to_dict(self) -> Dict[str, Any]:
+        # Note: We return the full encoded content string for LLM provider consumption
         return {
             "media_type": self.media_type.value,
-            "content": self.encoded_content if self.media_type != MediaType.TEXT else self.content,
+            "content": self.encoded_content,
             "metadata": self.metadata
         }
 
@@ -67,13 +72,6 @@ class MultiModalProcessor:
     ) -> MultiModalInput:
         """
         Process an image file for agent input.
-        
-        Args:
-            image_path: Path to image file
-            description: Optional image description
-        
-        Returns:
-            MultiModalInput object
         """
         path = Path(image_path)
         if not path.exists():
@@ -86,6 +84,14 @@ class MultiModalProcessor:
         with open(path, 'rb') as f:
             image_bytes = f.read()
         
+        # Determine MIME type (simplified, a full implementation would use mimetypes)
+        mime_map = {
+            ".jpg": "image/jpeg", ".jpeg": "image/jpeg", 
+            ".png": "image/png", ".gif": "image/gif", 
+            ".webp": "image/webp"
+        }
+        mime_type = mime_map.get(path.suffix.lower(), "application/octet-stream")
+        
         logger.info(f"[MultiModal] Processed image: {path.name} ({len(image_bytes)} bytes)")
         
         return MultiModalInput(
@@ -95,7 +101,8 @@ class MultiModalProcessor:
                 "filename": path.name,
                 "format": path.suffix,
                 "size_bytes": len(image_bytes),
-                "description": description
+                "description": description,
+                "mime_type": mime_type # Explicitly set mime type for LLM
             }
         )
     
@@ -106,13 +113,6 @@ class MultiModalProcessor:
     ) -> MultiModalInput:
         """
         Process an audio file.
-        
-        Args:
-            audio_path: Path to audio file
-            transcribe: Whether to transcribe audio to text
-        
-        Returns:
-            MultiModalInput object
         """
         path = Path(audio_path)
         if not path.exists():
@@ -128,7 +128,8 @@ class MultiModalProcessor:
         metadata = {
             "filename": path.name,
             "format": path.suffix,
-            "size_bytes": len(audio_bytes)
+            "size_bytes": len(audio_bytes),
+            "mime_type": f"audio/{path.suffix[1:]}"
         }
         
         # Transcribe if requested
@@ -151,23 +152,37 @@ class MultiModalProcessor:
         media_inputs: List[MultiModalInput]
     ) -> Dict[str, Any]:
         """
-        Create a multi-modal prompt combining text and media.
-        
-        Args:
-            text: Text prompt
-            media_inputs: List of media inputs
+        Create a multi-modal prompt content list suitable for a single message
+        in the Gemini/OpenAI API structure.
         
         Returns:
-            Formatted multi-modal prompt
+            Formatted multi-modal prompt: List of content parts (Dicts/Strings)
         """
-        prompt = {
-            "type": "multimodal",
-            "text": text,
-            "media": [input.to_dict() for input in media_inputs]
-        }
+        # Gemini format uses a list of text/parts
+        content_parts = []
+        
+        # Add media parts first
+        for media_input in media_inputs:
+            if media_input.media_type != MediaType.TEXT:
+                
+                # Extract the base64 content part (remove "data:mime_type;base64,")
+                encoded_data = media_input.encoded_content.split("base64,")[1]
+                mime_type = media_input.metadata["mime_type"]
+
+                # Add a dict representing the media part - used internally by LLM providers
+                content_parts.append({
+                    "inline_data": {
+                        "data": encoded_data,
+                        "mime_type": mime_type
+                    }
+                })
+        
+        # Add the text part last
+        content_parts.append({"text": text})
         
         logger.info(
             f"[MultiModal] Created prompt with text and {len(media_inputs)} media inputs"
         )
         
-        return prompt
+        # Return the structured content list
+        return content_parts

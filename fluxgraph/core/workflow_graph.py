@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 class NodeType(Enum):
     """Types of nodes in workflow graph."""
     AGENT = "agent"
-    CONDITION = "condition" # A node that executes a check/function to update the state
-    LOOP = "loop" # Not fully implemented in core logic, reserved for future
+    CONDITION = "condition" 
+    LOOP = "loop" 
     PARALLEL = "parallel"
     START = "start"
     END = "end"
@@ -30,7 +30,7 @@ class WorkflowState:
     data: Dict[str, Any] = field(default_factory=dict)
     history: List[Dict[str, Any]] = field(default_factory=list)
     current_node: Optional[str] = None
-    current_node_result: Optional[Any] = None # <-- ADDED: Holds output of the last executed node
+    current_node_result: Optional[Any] = None 
     iteration_count: int = 0
     max_iterations: int = 100
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -77,13 +77,6 @@ class WorkflowNode:
 class WorkflowGraph:
     """
     Graph-based workflow orchestration system.
-    
-    Enables complex multi-agent workflows with:
-    - Conditional branching
-    - Loops and iterations
-    - Parallel execution
-    - State management
-    - Error recovery
     """
     
     def __init__(self, name: str = "workflow"):
@@ -299,7 +292,6 @@ class WorkflowGraph:
         # 3. Default to End
         return "__end__"
 
-    # ... (WorkflowBuilder and visualize methods omitted for brevity as they are unchanged)
     def visualize(self) -> str:
         """Generate a simple text visualization of the workflow."""
         lines = [f"Workflow: {self.name}", "=" * 50]

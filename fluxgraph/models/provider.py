@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from enum import Enum
 import logging
 
+# Assuming MultiModalInput is importable and defined somewhere
+from ..multimodal.processor import MultiModalInput # <-- NEW IMPORT
+
 logger = logging.getLogger(__name__)
 
 
@@ -76,9 +79,6 @@ class ModelProvider(ABC):
     def __init__(self, config: ModelConfig):
         """
         Initialize provider with configuration.
-        
-        Args:
-            config: ModelConfig instance with provider settings
         """
         self.config = config
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
@@ -102,24 +102,23 @@ class ModelProvider(ABC):
     ) -> ModelResponse:
         """
         Generate a text response based on the prompt.
-        
-        Args:
-            prompt: The input prompt for the model
-            system_message: Optional system message for chat models
-            **kwargs: Additional model-specific parameters
-                - temperature: float (0.0-2.0)
-                - max_tokens: int
-                - top_p: float
-                - stop: List[str] or str
-                - stream: bool
-        
-        Returns:
-            ModelResponse: Standardized response object
-        
-        Raises:
-            ModelProviderError: If generation fails
         """
         pass
+    
+    @abstractmethod
+    async def multimodal_generate(
+        self,
+        prompt: str,
+        media_inputs: List['MultiModalInput'], # <-- NEW ABSTRACT METHOD
+        system_message: Optional[str] = None,
+        **kwargs
+    ) -> ModelResponse:
+        """
+        Generate a text response based on a prompt and one or more media inputs (e.g., images).
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support multimodal generation"
+        )
     
     @abstractmethod
     async def chat(
@@ -129,17 +128,6 @@ class ModelProvider(ABC):
     ) -> ModelResponse:
         """
         Chat completion with message history.
-        
-        Args:
-            messages: List of message dicts with 'role' and 'content'
-                Example: [
-                    {"role": "system", "content": "You are helpful"},
-                    {"role": "user", "content": "Hello"}
-                ]
-            **kwargs: Additional parameters
-        
-        Returns:
-            ModelResponse: Standardized response object
         """
         pass
     
@@ -151,17 +139,6 @@ class ModelProvider(ABC):
     ) -> AsyncIterator[str]:
         """
         Stream generation token by token.
-        
-        Args:
-            prompt: Input prompt
-            system_message: Optional system message
-            **kwargs: Additional parameters
-        
-        Yields:
-            str: Generated tokens
-        
-        Raises:
-            NotImplementedError: If streaming not supported
         """
         raise NotImplementedError(
             f"{self.__class__.__name__} does not support streaming"
@@ -170,15 +147,6 @@ class ModelProvider(ABC):
     async def embed(self, texts: List[str]) -> List[List[float]]:
         """
         Generate embeddings for texts.
-        
-        Args:
-            texts: List of texts to embed
-        
-        Returns:
-            List of embedding vectors
-        
-        Raises:
-            NotImplementedError: If embeddings not supported
         """
         raise NotImplementedError(
             f"{self.__class__.__name__} does not support embeddings"
@@ -187,12 +155,6 @@ class ModelProvider(ABC):
     def supports_capability(self, capability: ModelCapability) -> bool:
         """
         Check if provider supports a capability.
-        
-        Args:
-            capability: ModelCapability to check
-        
-        Returns:
-            bool: True if supported
         """
         return capability in self._capabilities
     
@@ -209,12 +171,6 @@ class ModelProvider(ABC):
     def _merge_kwargs(self, **kwargs) -> Dict[str, Any]:
         """
         Merge kwargs with config defaults.
-        
-        Args:
-            **kwargs: Override parameters
-        
-        Returns:
-            Dict with merged parameters
         """
         params = {
             "temperature": self.config.temperature,
@@ -227,9 +183,6 @@ class ModelProvider(ABC):
     async def health_check(self) -> bool:
         """
         Check if provider is healthy and accessible.
-        
-        Returns:
-            bool: True if healthy
         """
         try:
             response = await self.generate("test", max_tokens=5)
