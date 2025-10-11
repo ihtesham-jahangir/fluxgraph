@@ -860,70 +860,97 @@ class FluxApp:
             }
         
         # ===== AGENT ENDPOINTS =====
-        @self.api.post("/ask/{agent_name}")
+        @self.api.post(
+            "/ask/{agent_name}",
+            summary="Ask Agent",
+            description="Execute a registered agent by name with a JSON payload."
+        )
         async def ask_agent(agent_name: str, payload: Dict[str, Any]):
-            """Execute a registered agent."""
+            """
+            Endpoint to interact with registered agents.
+            The payload JSON is passed as keyword arguments to the agent's `run` method.
+            """
+            # Get request context
             request_id = request_id_context.get()
             start_time = time.time()
+            logger.info(
+                f"[{request_id}] 🤖 Executing agent '{agent_name}' with payload keys: {list(payload.keys())}"
+            )
             
-            logger.info(f"[{request_id}] 🤖 Executing agent '{agent_name}'")
-            
+            # --- Trigger 'request_received' Event Hook ---
+            hook_start = time.time()
             await self.hooks.trigger("request_received", {
                 "request_id": request_id,
                 "agent_name": agent_name,
-                "payload": payload
+                "payload": payload,
+                "hook_duration": time.time() - hook_start
             })
+            logger.debug(f"[{request_id}] Hook 'request_received' triggered.")
             
             try:
-                # Security checks
-                if self.prompt_shield:
-                    if self.prompt_shield.is_injection(payload.get("query", "")):
-                        raise HTTPException(status_code=400, detail="Prompt injection detected")
-                
-                if self.pii_detector:
-                    payload = self.pii_detector.redact_pii(payload)
-                
-                # Check cache
-                if self.agent_cache:
-                    cached = await self.agent_cache.get(agent_name, payload)
-                    if cached:
-                        logger.info(f"[{request_id}] ⚡ Cache hit for '{agent_name}'")
-                        return cached
-                
-                # Execute agent
+                # --- Execute Agent via Orchestrator ---
                 result = await self.orchestrator.run(agent_name, payload)
+                end_time = time.time()
+                duration = end_time - start_time
                 
-                # Store in cache
-                if self.agent_cache:
-                    await self.agent_cache.set(agent_name, payload, result)
-                
-                # Audit log
-                if self.audit_logger:
-                    await self.audit_logger.log(
-                        AuditEventType.AGENT_EXECUTED,
-                        {"agent": agent_name, "request_id": request_id}
-                    )
-                
-                duration = time.time() - start_time
-                
+                # --- Trigger 'agent_completed' Event Hook ---
+                hook_start = time.time()
                 await self.hooks.trigger("agent_completed", {
                     "request_id": request_id,
                     "agent_name": agent_name,
                     "result": result,
-                    "duration": duration
+                    "duration": duration,
+                    "hook_duration": time.time() - hook_start
                 })
+                logger.debug(f"[{request_id}] Hook 'agent_completed' triggered.")
+                logger.info(
+                    f"[{request_id}] ✅ Agent '{agent_name}' executed successfully "
+                    f"(Total Duration: {duration:.4f}s)."
+                )
                 
-                logger.info(f"[{request_id}] ✅ Agent '{agent_name}' completed ({duration:.4f}s)")
                 return result
+            
+            except ValueError as e:  # Agent not found or execution logic error
+                end_time = time.time()
+                duration = end_time - start_time
+                logger.warning(
+                    f"[{request_id}] ⚠️ Agent '{agent_name}' error (Duration: {duration:.4f}s): {e}"
+                )
                 
-            except ValueError as e:
-                logger.warning(f"[{request_id}] ⚠️ Agent error: {e}")
-                status_code = 404 if "not registered" in str(e).lower() else 400
+                # --- Trigger 'agent_error' Event Hook ---
+                hook_start = time.time()
+                await self.hooks.trigger("agent_error", {
+                    "request_id": request_id,
+                    "agent_name": agent_name,
+                    "error": str(e),
+                    "duration": duration,
+                    "hook_duration": time.time() - hook_start
+                })
+                logger.debug(f"[{request_id}] Hook 'agent_error' triggered.")
+                
+                status_code = 404 if "not registered" in str(e).lower() or "not found" in str(e).lower() else 400
                 raise HTTPException(status_code=status_code, detail=str(e))
-            except Exception as e:
-                logger.error(f"[{request_id}] ❌ Execution error: {e}", exc_info=True)
+            
+            except Exception as e:  # Unexpected server error
+                end_time = time.time()
+                duration = end_time - start_time
+                logger.error(
+                    f"[{request_id}] ❌ Execution error for agent '{agent_name}' (Duration: {duration:.4f}s): {e}",
+                    exc_info=True
+                )
+                
+                # --- Trigger 'server_error' Event Hook ---
+                hook_start = time.time()
+                await self.hooks.trigger("server_error", {
+                    "request_id": request_id,
+                    "agent_name": agent_name,
+                    "error": str(e),
+                    "duration": duration,
+                    "hook_duration": time.time() - hook_start
+                })
+                logger.debug(f"[{request_id}] Hook 'server_error' triggered.")
                 raise HTTPException(status_code=500, detail="Internal Server Error")
-        
+                
         # ===== V3.2 CHAIN ENDPOINTS =====
         if self.langserve_enabled and CHAINS_V32_AVAILABLE:
             

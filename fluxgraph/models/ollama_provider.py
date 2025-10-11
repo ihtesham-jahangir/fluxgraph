@@ -6,6 +6,7 @@ import os
 from typing import Dict, Any, List, Optional, AsyncIterator
 import httpx
 import asyncio
+import tiktoken  # <--- NEW IMPORT for token counting
 
 from .provider import (
     ModelProvider,
@@ -15,6 +16,25 @@ from .provider import (
     ModelProviderError,
     ModelProviderTimeoutError
 )
+
+
+# Global tokenizer cache for efficiency
+_TKN_CACHE = {}
+
+def _count_tokens(text: str, model_name: str) -> int:
+    """Approximate token count for given text using tiktoken as a standard fallback."""
+    # Use a generic encoding as a fallback for non-OpenAI models
+    encoding_name = "cl100k_base"
+    
+    # Try to get model-specific encoding if it exists (though usually reserved for OpenAI)
+    # The tiktoken library provides a stable, fast counting mechanism for most text data.
+    if model_name not in _TKN_CACHE:
+        try:
+            _TKN_CACHE[model_name] = tiktoken.encoding_for_model(model_name)
+        except KeyError:
+            _TKN_CACHE[model_name] = tiktoken.get_encoding(encoding_name)
+            
+    return len(_TKN_CACHE[model_name].encode(text))
 
 
 class OllamaProvider(ModelProvider):
@@ -97,15 +117,28 @@ class OllamaProvider(ModelProvider):
             response.raise_for_status()
             data = response.json()
             
+            # --- START: TOKEN COUNTING LOGIC FIX ---
+            prompt_tokens = data.get("prompt_eval_count", 0)
+            completion_tokens = data.get("eval_count", 0)
+            
+            # Fallback: if native token counts are missing (i.e., both are 0), calculate them.
+            if prompt_tokens == 0 and completion_tokens == 0:
+                text_content = data.get("response", "").strip()
+                prompt_tokens = _count_tokens(prompt, self.config.model_name)
+                completion_tokens = _count_tokens(text_content, self.config.model_name)
+
+            usage_dict = {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": prompt_tokens + completion_tokens
+            }
+            # --- END: TOKEN COUNTING LOGIC FIX ---
+            
             return ModelResponse(
                 text=data.get("response", "").strip(),
                 model=data.get("model", self.config.model_name),
                 provider="ollama",
-                usage={
-                    "prompt_tokens": data.get("prompt_eval_count", 0),
-                    "completion_tokens": data.get("eval_count", 0),
-                    "total_tokens": data.get("prompt_eval_count", 0) + data.get("eval_count", 0)
-                },
+                usage=usage_dict, # <-- Use the calculated/fallback usage
                 raw_response=data
             )
             
@@ -143,10 +176,24 @@ class OllamaProvider(ModelProvider):
             message = data.get("message", {})
             text_content = message.get("content", "").strip()
             
+            # --- START: TOKEN COUNTING LOGIC FIX ---
+            # Ollama /api/chat may not return usage, so we estimate:
+            full_prompt_text = "\n".join([msg['content'] for msg in messages if msg['content']])
+            prompt_tokens = _count_tokens(full_prompt_text, self.config.model_name)
+            completion_tokens = _count_tokens(text_content, self.config.model_name)
+
+            usage_dict = {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": prompt_tokens + completion_tokens
+            }
+            # --- END: TOKEN COUNTING LOGIC FIX ---
+
             return ModelResponse(
                 text=text_content,
                 model=data.get("model", self.config.model_name),
                 provider="ollama",
+                usage=usage_dict,
                 raw_response=data
             )
             

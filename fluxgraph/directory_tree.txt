@@ -1,0 +1,179 @@
+.
+├── analytics
+│   ├── dashboard.py
+│   ├── __init__.py
+│   ├── metrics_collector.py
+│   ├── performance_monitor.py
+│   └── __pycache__
+│       ├── dashboard.cpython-312.pyc
+│       ├── __init__.cpython-312.pyc
+│       ├── metrics_collector.cpython-312.pyc
+│       └── performance_monitor.cpython-312.pyc
+├── chains
+│   ├── batch.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── parsers.py
+│   ├── prompts.py
+│   ├── __pycache__
+│   │   ├── batch.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── models.cpython-312.pyc
+│   │   ├── parsers.cpython-312.pyc
+│   │   ├── prompts.cpython-312.pyc
+│   │   └── streaming.cpython-312.pyc
+│   └── streaming.py
+├── connectors
+│   ├── base.py
+│   ├── __init__.py
+│   ├── postgres_connector.py
+│   ├── __pycache__
+│   │   ├── base.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── postgres_connector.cpython-312.pyc
+│   │   ├── salesforce_connector.cpython-312.pyc
+│   │   └── shopify_connector.cpython-312.pyc
+│   ├── salesforce_connector.py
+│   └── shopify_connector.py
+├── core
+│   ├── adapter.py
+│   ├── advanced_memory.py
+│   ├── agent_cache.py
+│   ├── agent_messaging.py
+│   ├── app.py
+│   ├── circuit_breaker.py
+│   ├── cost_tracker.py
+│   ├── enhanced_memory.py
+│   ├── __init__.py
+│   ├── memory.py
+│   ├── orchestrator_advanced.py
+│   ├── orchestrator.py
+│   ├── postgres_memory.py
+│   ├── __pycache__
+│   │   ├── advanced_memory.cpython-312.pyc
+│   │   ├── agent_cache.cpython-312.pyc
+│   │   ├── agent_messaging.cpython-312.pyc
+│   │   ├── app.cpython-312.pyc
+│   │   ├── circuit_breaker.cpython-312.pyc
+│   │   ├── cost_tracker.cpython-312.pyc
+│   │   ├── enhanced_memory.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── memory.cpython-312.pyc
+│   │   ├── orchestrator_advanced.cpython-312.pyc
+│   │   ├── orchestrator.cpython-312.pyc
+│   │   ├── rag.cpython-312.pyc
+│   │   ├── registry.cpython-312.pyc
+│   │   ├── retry.cpython-312.pyc
+│   │   ├── session_manager.cpython-312.pyc
+│   │   ├── smart_router.cpython-312.pyc
+│   │   ├── streaming.cpython-312.pyc
+│   │   ├── tool_registry.cpython-312.pyc
+│   │   ├── universal_rag.cpython-312.pyc
+│   │   ├── validation.cpython-312.pyc
+│   │   ├── versioning.cpython-312.pyc
+│   │   └── workflow_graph.cpython-312.pyc
+│   ├── rag.py
+│   ├── rbac.py
+│   ├── registry.py
+│   ├── retry.py
+│   ├── session_manager.py
+│   ├── smart_router.py
+│   ├── streaming.py
+│   ├── tool_registry.py
+│   ├── universal_rag.py
+│   ├── validation.py
+│   ├── versioning.py
+│   └── workflow_graph.py
+├── crew
+│   ├── delegation.py
+│   ├── human.py
+│   ├── __init__.py
+│   ├── knowledge.py
+│   ├── role_agent.py
+│   └── routing.py
+├── directory_tree.txt
+├── __init__.py
+├── marketplace
+│   ├── __pycache__
+│   │   └── templates.cpython-312.pyc
+│   └── templates.py
+├── models
+│   ├── anthropic_provider.py
+│   ├── builder.py
+│   ├── easy.py
+│   ├── factory.py
+│   ├── gemini_provider.py
+│   ├── groq_provider.py
+│   ├── huggingface_provider.py
+│   ├── __init__.py
+│   ├── ollama_provider.py
+│   ├── openai_provider.py
+│   ├── presets.py
+│   ├── provider.py
+│   ├── __pycache__
+│   │   ├── anthropic_provider.cpython-312.pyc
+│   │   ├── builder.cpython-312.pyc
+│   │   ├── easy.cpython-312.pyc
+│   │   ├── factory.cpython-312.pyc
+│   │   ├── gemini_provider.cpython-312.pyc
+│   │   ├── groq_provider.cpython-312.pyc
+│   │   ├── huggingface_provider.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── ollama_provider.cpython-312.pyc
+│   │   ├── openai_provider.cpython-312.pyc
+│   │   ├── presets.cpython-312.pyc
+│   │   ├── provider.cpython-312.pyc
+│   │   └── simple.cpython-312.pyc
+│   └── simple.py
+├── multimodal
+│   ├── processor.py
+│   └── __pycache__
+│       └── processor.cpython-312.pyc
+├── orchestration
+│   ├── batch.py
+│   ├── handoff.py
+│   ├── hitl.py
+│   ├── __pycache__
+│   │   ├── batch.cpython-312.pyc
+│   │   ├── handoff.cpython-312.pyc
+│   │   ├── hitl.cpython-312.pyc
+│   │   └── task_adherence.cpython-312.pyc
+│   └── task_adherence.py
+├── protocols
+│   ├── mcp.py
+│   └── __pycache__
+│       └── mcp.cpython-312.pyc
+├── __pycache__
+│   └── __init__.cpython-312.pyc
+├── security
+│   ├── audit.py
+│   ├── pii_detector.py
+│   ├── prompt_injection.py
+│   └── __pycache__
+│       ├── audit.cpython-312.pyc
+│       ├── pii_detector.cpython-312.pyc
+│       └── prompt_injection.cpython-312.pyc
+├── serve
+│   ├── __init__.py
+│   └── __pycache__
+│       └── __init__.cpython-312.pyc
+├── tracing
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   └── __init__.cpython-312.pyc
+│   └── tracer.py
+├── utils
+│   ├── db.py
+│   ├── hooks.py
+│   ├── __init__.py
+│   └── __pycache__
+│       ├── hooks.cpython-312.pyc
+│       └── __init__.cpython-312.pyc
+└── workflows
+    ├── __init__.py
+    ├── __pycache__
+    │   ├── __init__.cpython-312.pyc
+    │   └── visual_builder.cpython-312.pyc
+    └── visual_builder.py
+
+31 directories, 146 files

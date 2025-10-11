@@ -9,6 +9,9 @@ from enum import Enum
 from datetime import datetime
 import asyncio
 import logging
+# --- NEW IMPORTS ---
+from .delegation import DelegationManager, DelegationStrategy # Import delegation tools
+# --- END NEW IMPORTS ---
 
 logger = logging.getLogger(__name__)
 
@@ -32,14 +35,6 @@ class AgentRole(Enum):
 class Task:
     """
     A task to be executed by an agent.
-    
-    Example:
-        task = Task(
-            description="Research AI market trends for 2025",
-            expected_output="Detailed 5-page report with statistics",
-            agent=researcher_agent,
-            context=[previous_task1, previous_task2]
-        )
     """
     description: str
     expected_output: str
@@ -113,15 +108,6 @@ class Task:
 class RoleAgent:
     """
     CrewAI-style role-based agent with personality.
-    
-    Example:
-        researcher = RoleAgent(
-            role="Senior Market Researcher",
-            goal="Conduct thorough market research and provide actionable insights",
-            backstory="Expert with 10 years in market analysis. Known for deep dives.",
-            verbose=True,
-            allow_delegation=True
-        )
     """
     role: str
     goal: str
@@ -149,13 +135,6 @@ class RoleAgent:
     async def execute_task(self, task_description: str, **kwargs) -> str:
         """
         Execute a task with this agent's expertise.
-        
-        Args:
-            task_description: Full task description with context
-            **kwargs: Additional parameters
-            
-        Returns:
-            Task output
         """
         try:
             from fluxgraph.models import ask
@@ -211,12 +190,6 @@ Execute the following task:"""
     async def delegate_task(self, task: Task, to_agent: 'RoleAgent') -> Any:
         """
         Delegate a task to another agent.
-        
-        Example:
-            result = await manager.delegate_task(
-                task=research_task,
-                to_agent=researcher
-            )
         """
         if not self.allow_delegation:
             raise ValueError(f"{self.role} is not allowed to delegate tasks")
@@ -261,16 +234,6 @@ class ProcessType(Enum):
 class Crew:
     """
     A crew of agents working together.
-    
-    Example:
-        crew = Crew(
-            agents=[researcher, analyst, writer],
-            tasks=[research_task, analysis_task, writing_task],
-            process=ProcessType.SEQUENTIAL,
-            verbose=True
-        )
-        
-        result = await crew.kickoff()
     """
     agents: List[RoleAgent]
     tasks: List[Task]
@@ -283,15 +246,19 @@ class Crew:
     results: List[Any] = field(default_factory=list)
     execution_time: Optional[float] = None
     
+    # --- NEW INTERNAL FIELD ---
+    _delegation_manager: Optional['DelegationManager'] = field(init=False, default=None)
+
+    def __post_init__(self):
+        """Initialize crew internals."""
+        # Initialize delegation manager for smart assignment
+        self._delegation_manager = DelegationManager(agents=self.agents)
+        if self.verbose:
+            logger.info(f"Initialized DelegationManager for crew with {len(self.agents)} agents.")
+        
     async def kickoff(self, inputs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Start crew execution.
-        
-        Args:
-            inputs: Optional input parameters
-            
-        Returns:
-            Dictionary with results and metadata
         """
         start_time = datetime.now()
         
@@ -358,23 +325,30 @@ class Crew:
         return results
     
     async def _execute_hierarchical(self, inputs: Optional[Dict] = None) -> List[Any]:
-        """Execute with manager coordinating."""
+        """
+        Execute with manager coordinating tasks using intelligent delegation.
+        """
         if self.verbose:
             print("\n👔 Manager coordinating team execution\n")
         
-        # Find manager or use first agent
+        # Find manager or use the first agent (used for logging role)
         manager = next((a for a in self.agents if "manager" in a.role.lower()), self.agents[0])
+        
+        delegation_manager: DelegationManager = self._delegation_manager
         
         results = []
         for task in self.tasks:
-            # Manager decides which agent to assign
-            if not task.agent:
-                # Simple assignment: round-robin
-                agent_idx = len(results) % len(self.agents)
-                task.agent = self.agents[agent_idx]
+            # Manager selects the best agent using SKILL_MATCH strategy
+            assigned_agent = delegation_manager.select_agent_for_task(
+                task=task,
+                strategy=DelegationStrategy.SKILL_MATCH 
+            )
+            
+            # Assign the selected agent to the task
+            task.agent = assigned_agent
             
             if self.verbose:
-                print(f"👔 Manager assigns task to {task.agent.role}")
+                print(f"👔 {manager.role} assigns task '{task.description[:30]}...' to {task.agent.role}")
             
             result = await task.execute(**(inputs or {}))
             results.append(result)
@@ -422,14 +396,6 @@ def create_agent(
 ) -> RoleAgent:
     """
     Quick agent creation.
-    
-    Example:
-        researcher = create_agent(
-            role="Senior Researcher",
-            goal="Conduct thorough research",
-            backstory="PhD in data science with 10 years experience",
-            verbose=True
-        )
     """
     return RoleAgent(role=role, goal=goal, backstory=backstory, **kwargs)
 
@@ -442,13 +408,6 @@ def create_task(
 ) -> Task:
     """
     Quick task creation.
-    
-    Example:
-        task = create_task(
-            description="Research AI trends",
-            expected_output="5-page report",
-            agent=researcher
-        )
     """
     return Task(description=description, expected_output=expected_output, agent=agent, **kwargs)
 
@@ -461,13 +420,5 @@ def create_crew(
 ) -> Crew:
     """
     Quick crew creation.
-    
-    Example:
-        crew = create_crew(
-            agents=[researcher, analyst, writer],
-            tasks=[research_task, analysis_task, writing_task],
-            process=ProcessType.SEQUENTIAL,
-            verbose=True
-        )
     """
     return Crew(agents=agents, tasks=tasks, process=process, **kwargs)

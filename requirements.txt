@@ -22,4 +22,6 @@ chromadb>=0.4.0,<1.0.0 # Vector database
 sentence-transformers>=2.2.0,<3.0.0 # For embeddings (optional, langchain handles this too)
 tiktoken>=0.5.0,<1.0.0 # For token counting (often used by langchain)
 pdfminer.six>=20230507,<20240000 # Included by unstructured for PDFs
-
+pillow>=10.0.0  # For image processing
+opencv-python>=4.8.0  # For video processing
+librosa>=0.10.0  # For audio processing

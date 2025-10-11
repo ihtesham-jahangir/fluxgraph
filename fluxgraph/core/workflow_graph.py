@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 class NodeType(Enum):
     """Types of nodes in workflow graph."""
     AGENT = "agent"
-    CONDITION = "condition"
-    LOOP = "loop"
+    CONDITION = "condition" # A node that executes a check/function to update the state
+    LOOP = "loop" # Not fully implemented in core logic, reserved for future
     PARALLEL = "parallel"
     START = "start"
     END = "end"
@@ -30,6 +30,7 @@ class WorkflowState:
     data: Dict[str, Any] = field(default_factory=dict)
     history: List[Dict[str, Any]] = field(default_factory=list)
     current_node: Optional[str] = None
+    current_node_result: Optional[Any] = None # <-- ADDED: Holds output of the last executed node
     iteration_count: int = 0
     max_iterations: int = 100
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -83,26 +84,13 @@ class WorkflowGraph:
     - Parallel execution
     - State management
     - Error recovery
-    
-    Example:
-        graph = WorkflowGraph()
-        graph.add_node("start", NodeType.START)
-        graph.add_node("analyzer", NodeType.AGENT, handler=analyzer_agent)
-        graph.add_node("processor", NodeType.AGENT, handler=processor_agent)
-        graph.add_conditional_edge("analyzer", route_decision, {
-            "success": "processor",
-            "retry": "analyzer",
-            "end": "__end__"
-        })
-        graph.set_entry_point("start")
-        result = await graph.execute({"input": "data"})
     """
     
     def __init__(self, name: str = "workflow"):
         self.name = name
         self.nodes: Dict[str, WorkflowNode] = {}
         self.edges: Dict[str, List[str]] = {}
-        self.conditional_edges: Dict[str, Callable] = {}
+        self.conditional_edges: Dict[str, Dict[str, Any]] = {} 
         self.entry_point: Optional[str] = None
         self.state: Optional[WorkflowState] = None
         
@@ -117,6 +105,9 @@ class WorkflowGraph:
         metadata: Optional[Dict[str, Any]] = None
     ):
         """Add a node to the workflow graph."""
+        if name == "__end__" and node_type != NodeType.END:
+            raise ValueError("Node '__end__' is reserved for NodeType.END")
+        
         self.nodes[name] = WorkflowNode(
             name=name,
             node_type=node_type,
@@ -129,7 +120,10 @@ class WorkflowGraph:
         """Add a simple edge between two nodes."""
         if from_node not in self.edges:
             self.edges[from_node] = []
-        self.edges[from_node].append(to_node)
+        # Prevent duplicate edges
+        if to_node not in self.edges[from_node]:
+            self.edges[from_node].append(to_node)
+        
         logger.debug(f"Added edge: {from_node} -> {to_node}")
     
     def add_conditional_edge(
@@ -140,12 +134,16 @@ class WorkflowGraph:
     ):
         """
         Add a conditional edge with routing logic.
-        
-        Args:
-            from_node: Source node
-            condition: Function that returns route key based on state
-            routes: Mapping of route keys to destination nodes
         """
+        # Ensure only one conditional edge per node
+        if from_node in self.conditional_edges or (from_node in self.edges and self.edges[from_node]):
+             raise ValueError(f"Node '{from_node}' already has a simple or conditional edge defined.")
+        
+        # Check that all route targets exist
+        for target_node in routes.values():
+            if target_node != "__end__" and target_node not in self.nodes:
+                raise ValueError(f"Target node '{target_node}' in routes not found.")
+        
         self.conditional_edges[from_node] = {
             "condition": condition,
             "routes": routes
@@ -156,6 +154,9 @@ class WorkflowGraph:
         """Set the entry point for workflow execution."""
         if node_name not in self.nodes:
             raise ValueError(f"Node '{node_name}' not found")
+        if self.nodes[node_name].node_type in [NodeType.END, NodeType.CONDITION]:
+             raise ValueError("Entry point cannot be END or CONDITION type.")
+             
         self.entry_point = node_name
         logger.debug(f"Set entry point: {node_name}")
     
@@ -166,13 +167,6 @@ class WorkflowGraph:
     ) -> Dict[str, Any]:
         """
         Execute the workflow graph.
-        
-        Args:
-            initial_data: Initial state data
-            max_iterations: Maximum iterations to prevent infinite loops
-            
-        Returns:
-            Final state data
         """
         if not self.entry_point:
             raise ValueError("Entry point not set")
@@ -193,37 +187,37 @@ class WorkflowGraph:
             if self.state.iteration_count > max_iterations:
                 raise RuntimeError(f"Max iterations ({max_iterations}) exceeded")
             
-            # Update current node
-            self.state.current_node = current_node
-            
             # Get node
             if current_node not in self.nodes:
                 raise ValueError(f"Node '{current_node}' not found")
-            
             node = self.nodes[current_node]
-            logger.info(f"Executing node: {current_node} (type: {node.node_type.value})")
+
+            # Update state for current node
+            self.state.current_node = current_node
             
             # Execute node
-            try:
-                if node.handler:
+            if node.node_type not in [NodeType.START, NodeType.END]:
+                logger.info(f"Executing node: {current_node} (type: {node.node_type.value})")
+                try:
                     result = await self._execute_node(node)
+                    # Store result and update state's latest result for conditions
                     self.state.update(f"{current_node}_result", result)
-            except Exception as e:
-                logger.error(f"Error in node '{current_node}': {e}")
-                self.state.update(f"{current_node}_error", str(e))
-                # Check if error recovery route exists
-                if current_node in self.conditional_edges:
-                    # Let conditional routing handle error
-                    pass
-                else:
-                    raise
+                    self.state.current_node_result = result
+                except Exception as e:
+                    logger.error(f"Error in node '{current_node}': {e}")
+                    self.state.update(f"{current_node}_error", str(e))
+                    # Pass error result to router
+                    self.state.current_node_result = {"error": str(e)} 
+            else:
+                 # Ensure result is clear for routing purposes on start/end
+                 self.state.current_node_result = None
             
             # Determine next node
             next_node = self._get_next_node(current_node)
             
             if next_node is None:
-                logger.warning(f"No next node from '{current_node}', ending workflow")
-                break
+                logger.warning(f"No valid next node defined from '{current_node}', ending workflow")
+                current_node = "__end__"
             
             current_node = next_node
         
@@ -237,17 +231,15 @@ class WorkflowGraph:
     
     async def _execute_node(self, node: WorkflowNode) -> Any:
         """Execute a single node."""
-        if node.node_type == NodeType.AGENT:
-            # Execute agent handler
+        if node.node_type in [NodeType.AGENT, NodeType.CONDITION]:
+            if not node.handler:
+                return {"status": "skipped", "message": f"Node {node.name} has no handler."}
+            
+            # Execute agent or condition handler (handler should return data or routing key)
             if asyncio.iscoroutinefunction(node.handler):
                 return await node.handler(self.state)
-            return node.handler(self.state)
-        
-        elif node.node_type == NodeType.CONDITION:
-            # Evaluate condition
-            if asyncio.iscoroutinefunction(node.handler):
-                return await node.handler(self.state)
-            return node.handler(self.state)
+            # Run sync functions in a thread to prevent blocking the async event loop
+            return await asyncio.to_thread(node.handler, self.state) 
         
         elif node.node_type == NodeType.PARALLEL:
             # Execute multiple handlers in parallel
@@ -256,38 +248,58 @@ class WorkflowGraph:
                 if asyncio.iscoroutinefunction(handler):
                     tasks.append(handler(self.state))
                 else:
+                    # Run sync functions in a thread
                     tasks.append(asyncio.to_thread(handler, self.state))
+            # Return list of results from parallel branches
             return await asyncio.gather(*tasks)
         
-        return None
+        return {"status": "no_action", "node_type": node.node_type.value}
     
     def _get_next_node(self, current_node: str) -> Optional[str]:
         """Determine next node based on edges and conditions."""
-        # Check conditional edges first
+        
+        # 1. Check Conditional Edges (Takes precedence)
         if current_node in self.conditional_edges:
             condition_config = self.conditional_edges[current_node]
-            condition = condition_config["condition"]
+            condition_func = condition_config["condition"]
             routes = condition_config["routes"]
             
-            # Evaluate condition
-            route_key = condition(self.state)
-            logger.debug(f"Condition evaluated to: {route_key}")
+            # Evaluate condition function - expects a string key matching a route
+            try:
+                # The condition is executed with the current state object
+                route_key = condition_func(self.state) 
+                if not isinstance(route_key, str):
+                    logger.error(f"Condition function for '{current_node}' returned non-string type: {type(route_key)}")
+                    route_key = "error" # Fallback key on invalid type
+            except Exception as e:
+                logger.error(f"Error evaluating condition for '{current_node}': {e}")
+                route_key = "error" # Fallback key on error
             
-            if route_key in routes:
-                return routes[route_key]
+            target = routes.get(route_key)
+            if target:
+                logger.debug(f"Conditional routing from {current_node}: Key '{route_key}' -> {target}")
+                return target
             else:
-                logger.warning(f"Route key '{route_key}' not found, using default")
-                return routes.get("default", "__end__")
+                # If key not found, check for a 'default' route
+                default_target = routes.get("default")
+                if default_target:
+                    logger.warning(f"Conditional route key '{route_key}' not found. Using default route: {default_target}")
+                    return default_target
+                
+                logger.error(f"Conditional route key '{route_key}' not found and no default defined for node '{current_node}'.")
+                return "__end__"
         
-        # Check simple edges
+        # 2. Check Simple Edges
         if current_node in self.edges:
             next_nodes = self.edges[current_node]
             if next_nodes:
-                return next_nodes[0]  # Take first edge
+                # For simple edge, always follow the first defined path
+                return next_nodes[0]
         
-        # No edge found, end workflow
+        # 3. Default to End
         return "__end__"
-    
+
+    # ... (WorkflowBuilder and visualize methods omitted for brevity as they are unchanged)
     def visualize(self) -> str:
         """Generate a simple text visualization of the workflow."""
         lines = [f"Workflow: {self.name}", "=" * 50]
@@ -348,52 +360,3 @@ class WorkflowBuilder:
     def build(self) -> WorkflowGraph:
         """Build and return the workflow graph."""
         return self.graph
-
-
-# Example usage
-if __name__ == "__main__":
-    async def main():
-        # Create workflow
-        builder = WorkflowBuilder("example_workflow")
-        
-        # Define agent handlers
-        async def analyzer(state: WorkflowState):
-            data = state.get("input")
-            result = f"Analyzed: {data}"
-            state.update("analysis", result)
-            return result
-        
-        async def processor(state: WorkflowState):
-            analysis = state.get("analysis")
-            result = f"Processed: {analysis}"
-            state.update("processed", result)
-            return result
-        
-        # Define routing condition
-        def should_retry(state: WorkflowState) -> str:
-            # Simple retry logic
-            if state.get("retry_count", 0) < 2:
-                state.update("retry_count", state.get("retry_count", 0) + 1)
-                return "retry"
-            return "success"
-        
-        # Build workflow
-        graph = (builder
-            .add_agent("analyzer", analyzer)
-            .add_agent("processor", processor)
-            .connect("analyzer", "processor")
-            .branch("processor", should_retry, {
-                "retry": "analyzer",
-                "success": "__end__"
-            })
-            .start_from("analyzer")
-            .build())
-        
-        # Visualize
-        print(graph.visualize())
-        
-        # Execute
-        result = await graph.execute({"input": "test data"})
-        print(f"\nResult: {json.dumps(result, indent=2)}")
-    
-    asyncio.run(main())
