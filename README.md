@@ -4,7 +4,7 @@ Here is the fully updated `README.md` content, ready to be copied into your file
 
 -----
 
-````markdown
+
 <div align="center">
   <img src="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/logo.jpeg" alt="FluxGraph Logo" width="200" height="200"/>
 </div>
@@ -680,13 +680,13 @@ pytest tests/
 
 We welcome contributions in core features, security, documentation, testing, and integrations.
 
------
 
-\<div align="center"\>
-\<p\>\<strong\>FluxGraph 3.2\</strong\>\</p\>
-\<p\>The most advanced open-source AI agent framework\</p\>
-\<p\>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security\</p\>
+
+<div align="center"\>
+<p\>\<strong\>FluxGraph 3.2</strong\></p\>
+<p\>The most advanced open-source AI agent framework\</p\>
+<p\>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security</p\>
 <br>
-\<p\>\<em\>⭐ Star us on GitHub if FluxGraph powers your AI systems\!\</em\>\</p\>
-\<p\>\<a href="https://github.com/ihtesham-jahangir/fluxgraph"\>GitHub\</a\> • \<a href="https://fluxgraph.readthedocs.io"\>Docs\</a\> • \<a href="https://discord.gg/Z9bAqjYvPc"\>Discord\</a\>\</p\>
-\</div\>
+<p\><em\>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em\></p\>
+<p\><a href="https://github.com/ihtesham-jahangir/fluxgraph"\>GitHub\</a\> • <a href="https://fluxgraph.readthedocs.io"\>Docs\</a\> • \<a href="https://discord.gg/Z9bAqjYvPc"\>Discord</a\></p\>
+</div\>
