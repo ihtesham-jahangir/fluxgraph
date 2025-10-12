@@ -19,7 +19,6 @@
 </p>
 
 <p align="center">
-  <!-- GitHub Stats -->
   <a href="https://github.com/ihtesham-jahangir/fluxgraph">
     <img src="https://img.shields.io/github/stars/ihtesham-jahangir/fluxgraph?style=for-the-badge&logo=github" alt="GitHub Stars"/>
   </a>
@@ -32,7 +31,6 @@
 </p>
 
 <p align="center">
-  <!-- Documentation & Community -->
   <a href="https://fluxgraph.readthedocs.io">
     <img src="https://img.shields.io/badge/docs-available-brightgreen?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Documentation"/>
   </a>
@@ -65,27 +63,29 @@
 
 FluxGraph is the **most complete open-source AI agent framework** for production deployment, combining cutting-edge innovations with enterprise-grade reliability. Built for developers who need sophisticated AI agent systems without complexity or vendor lock-in.
 
-### What's New in v3.0
+### What's New in v3.2
 
 **Revolutionary Features:**
 
-- **Graph-Based Workflows** - Visual agent orchestration with conditional routing, loops, and state management
-- **Hybrid Memory System** - Short-term + long-term + episodic memory with semantic search
+- **Graph-Based Workflows (Fully Conditional)** - **Guaranteed conditional routing and looping** with robust state management.
+- **Intelligent Multi-Agent Crews** - Hierarchical and consensus processes powered by **skill-based delegation and load balancing**.
+- **Accurate Cost Tracking** - Real-time cost calculation now uses **tokenization fallback** (via `tiktoken`) to ensure reliability even with local or non-standard APIs.
+- **Multimodal Ready** - Standardized interface for **GPT-4V and Gemini Vision** models using Base64 Data URIs.
 - **Semantic Caching** - Intelligent response caching reduces LLM costs by 70%+
 
 ### Why FluxGraph?
 
-| Feature | FluxGraph 3.0 | LangGraph | CrewAI | AutoGen |
+| Feature | FluxGraph 3.2 | LangGraph | CrewAI | AutoGen |
 |---------|---------------|-----------|--------|---------|
-| **Graph Workflows** | ✅ Native | ✅ Core | ❌ | ❌ |
+| **Graph Workflows** | ✅ **Full Conditional** | ✅ Core | ❌ | ❌ |
 | **Semantic Caching** | ✅ Built-in | ❌ | ❌ | ❌ |
 | **Hybrid Memory** | ✅ Advanced | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic |
 | **Circuit Breakers** | ✅ Native | ❌ | ❌ | ❌ |
-| **Cost Tracking** | ✅ Real-time | ❌ | ❌ | ❌ |
+| **Cost Tracking** | ✅ **Reliable & Accurate** | ❌ | ❌ | ❌ |
 | **Audit Logs** | ✅ Blockchain | ❌ | ❌ | ❌ |
 | **PII Detection** | ✅ 9 types | ❌ | ❌ | ❌ |
-| **Streaming** | ✅ SSE | ⚠️ Callbacks | ❌ | ❌ |
-| **Production Ready** | ✅ Day 1 | ⚠️ Config | ⚠️ Manual | ⚠️ Manual |
+| **Streaming** | ✅ SSE & Optimized | ⚠️ Callbacks | ❌ | ❌ |
+| **Multimodal Ready** | ✅ **Standardized API** | ❌ | ❌ | ❌ |
 
 ---
 
@@ -99,64 +99,75 @@ FluxGraph is the **most complete open-source AI agent framework** for production
 
 ```ascii
 ┌─────────────────────────────────────────────────────────┐
-│                    FluxGraph v3.0                       │
+│                    FluxGraph v3.2                       │
 ├─────────────────────────────────────────────────────────┤
-│  🔀 Workflow Engine  │  ⚡ Semantic Cache  │  🧠 Memory  │
+│  🔀 Workflow Engine (Conditional) │  ⚡ Semantic Cache  │  🧠 Hybrid Memory  │
 ├─────────────────────────────────────────────────────────┤
 │              Advanced Orchestrator                      │
-│   Circuit Breakers • Cost Tracking • Smart Routing     │
+│   Circuit Breakers • Cost Tracking (Accurate) • Smart Routing     │
 ├─────────────────────────────────────────────────────────┤
 │  🔒 Security Layer (PII, Injection, RBAC, Audit)       │
 ├─────────────────────────────────────────────────────────┤
-│  Agent Registry  │  Tool Registry  │  RAG System       │
+│  Agent Registry  │  Tool Registry  │  RAG System (Multimodal)       │
 └─────────────────────────────────────────────────────────┘
-```
 
----
 
-## Installation
 
-### Quick Start
+Installation
 
-```bash
-# Full installation with v3.0 features
-pip install fluxgraph[full]
+
+Quick Start
+
+
+Bash
+
+
+# Full installation with v3.2 features
+pip install fluxgraph[all]
 
 # Minimal installation
 pip install fluxgraph
-```
 
-### Feature-Specific
 
-```bash
-# v3.0 features only
-pip install fluxgraph[p0]
 
-# Production + v3.0
-pip install fluxgraph[production,p0]
+Feature-Specific
+
+
+Bash
+
+
+# v3.2 core features (optimized for chains/workflows)
+pip install fluxgraph[chains,p0]
+
+# Production stack
+pip install fluxgraph[production,orchestration,security]
 
 # Everything
 pip install fluxgraph[all]
-```
 
-### Available Extras
 
-- `p0` - Graph workflows, advanced memory, semantic caching
-- `production` - Streaming, sessions, retry logic
-- `security` - RBAC, audit logs, PII detection
-- `orchestration` - Handoffs, HITL, batch processing
-- `rag` - ChromaDB, embeddings, document processing
-- `postgres` - PostgreSQL persistence
-- `full` - All production features
-- `all` - Everything including dev tools
 
----
+Available Extras
 
-## Quick Start Guide
+p0 - Graph workflows, advanced memory, semantic caching
+production - Streaming, sessions, retry logic
+security - RBAC, audit logs, PII detection, Prompt Shield
+orchestration - Handoffs, HITL, batch processing
+rag - ChromaDB, embeddings, document processing
+postgres - PostgreSQL persistence
+chains - LCEL-style chaining, Tracing
+full - All production features
+all - Everything including dev tools
 
-### Hello World (30 seconds)
+Quick Start Guide
 
-```python
+
+Hello World (30 seconds)
+
+
+Python
+
+
 from fluxgraph import FluxApp
 
 app = FluxApp(title="My AI App")
@@ -169,11 +180,15 @@ async def assistant(message: str,**kwargs) -> dict:
 # Run: flux run app.py
 # Test: curl -X POST http://localhost:8000/ask/assistant \
 #       -d '{"message":"Hello!"}'
-```
 
-### LLM-Powered Agent
 
-```python
+
+LLM-Powered Agent
+
+
+Python
+
+
 import os
 from fluxgraph import FluxApp
 from fluxgraph.models import OpenAIProvider
@@ -190,165 +205,121 @@ async def assistant(query: str) -> dict:
     """AI assistant powered by GPT-4."""
     response = await llm.generate(f"Answer: {query}")
     return {"answer": response.get("text")}
-```
 
----
 
-## New in v3.0
 
-### 1. Graph-Based Workflows
+New in v3.2
 
-Create complex agent workflows with conditional routing and loops:
 
-```python
+1. Graph-Based Workflows (Fully Conditional)
+
+The workflow engine is now guaranteed to support complex, multi-step agent logic with true conditional routing and looping.
+
+Python
+
+
 from fluxgraph import FluxApp
 from fluxgraph.core import WorkflowBuilder
 
 app = FluxApp(enable_workflows=True)
 
-# Define workflow agents
-async def research_agent(state):
-    query = state.get("query")
-    results = await do_research(query)
-    state.update("research", results)
-    return results
-
-async def analysis_agent(state):
-    research = state.get("research")
-    analysis = await analyze(research)
-    state.update("analysis", analysis)
-    return analysis
-
-# Quality check router
+# Define routing condition using latest result/state
 def quality_check(state):
-    if state.get("analysis").get("confidence") < 0.8:
-        return "retry"  # Loop back
+    # state.current_node_result holds the output of the 'analyzer' node
+    confidence = state.get("analyzer_result", {}).get("confidence", 0) 
+    
+    if confidence < 0.8:
+        return "retry"  # Loop back to research
     return "complete"
 
 # Build workflow graph
 workflow = (WorkflowBuilder("research_workflow")
-    .add_agent("researcher", research_agent)
-    .add_agent("analyzer", analysis_agent)
+    .add_agent("researcher", research_agent) # Agent that generates research
+    .add_agent("analyzer", analysis_agent)   # Agent that analyzes, returns result with 'confidence'
     .connect("researcher", "analyzer")
     .branch("analyzer", quality_check, {
-        "retry": "researcher",
-        "complete": "__end__"
+        "retry": "researcher", # Conditional loop back
+        "complete": "__end__"  # Conditional exit
     })
     .start_from("researcher")
     .build())
 
-app.register_workflow("research", workflow)
-
-# Execute
 result = await workflow.execute({"query": "AI trends 2025"})
-```
 
-**Features:**
 
-- Conditional branching based on agent outputs
-- Loops and iterative refinement
-- State persistence across workflow steps
-- Visual workflow representation
-- Error recovery and rollback
+Features:
+Full Conditional Routing: Use any state variable or the last node's output to determine the next step.
+Robust Looping: Easily define self-correcting loops (e.g., retry research or analysis).
+State persistence across steps.
 
-### 2. Advanced Memory System
+2. Intelligent Multi-Agent System (Hierarchical Delegation)
 
-Hybrid memory with semantic search and automatic consolidation:
+Hierarchical crew execution now uses skill-based matching to ensure tasks are intelligently routed to the most appropriate specialist agent, delivering superior multi-agent results.
 
-```python
-from fluxgraph import FluxApp
-from fluxgraph.core import MemoryType
+Python
 
-app = FluxApp(enable_advanced_memory=True)
 
-@app.agent()
-async def smart_agent(query: str, advanced_memory) -> dict:
-    """Agent with advanced memory capabilities."""
-    
-    # Store in short-term memory
-    advanced_memory.store(
-        f"User asked: {query}",
-        MemoryType.SHORT_TERM,
-        importance=0.8
-    )
-    
-    # Recall similar past interactions (semantic search)
-    similar = advanced_memory.recall_similar(query, k=5)
-    
-    # Get recent memories
-    recent = advanced_memory.recall_recent(k=10)
-    
-    # Consolidate important memories to long-term
-    advanced_memory.consolidate()
-    
-    return {
-        "response": f"Found {len(similar)} similar memories",
-        "context": [entry.content for entry, score in similar]
-    }
-```
+from fluxgraph.crew import Crew, RoleAgent, Task, ProcessType
 
-**Memory Types:**
+# Define specialist agents
+researcher = RoleAgent(role="Senior Market Researcher", goal="Conduct deep analysis...", backstory="...")
+writer = RoleAgent(role="Creative Content Writer", goal="Produce engaging reports...", backstory="...")
 
-- **Short-term**: Session-based, fast access
-- **Long-term**: Vector embeddings, persistent
-- **Episodic**: Specific past interactions
-- **Semantic**: General knowledge learned over time
+task1 = Task(description="Find Q3 market size data", expected_output="Numeric market size.")
+task2 = Task(description="Write a 500-word executive summary", expected_output="Polished summary.")
 
-**Features:**
-
-- Automatic consolidation of important memories
-- Semantic similarity search
-- Configurable forgetting mechanisms
-- Memory statistics and debugging
-
-### 3. Semantic Caching
-
-Intelligent caching reduces costs by 70%+ with semantic matching:
-
-```python
-from fluxgraph import FluxApp
-
-app = FluxApp(
-    enable_agent_cache=True,
-    cache_strategy="hybrid"  # "exact", "semantic", or "hybrid"
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[task1, task2],
+    process=ProcessType.HIERARCHICAL # Enables intelligent delegation
 )
 
+# Manager automatically assigns task1 (Find data) to Researcher
+# and task2 (Write summary) to Writer using skill matching.
+result = await crew.kickoff()
+
+
+
+3. Multimodal & Vision Ready
+
+The framework introduces a standardized multimodal_generate function to support models like GPT-4V and Gemini Vision, allowing agents to process images and audio alongside text.
+
+Python
+
+
+from fluxgraph import FluxApp
+from fluxgraph.models import OpenAIProvider
+from fluxgraph.multimodal.processor import MultiModalProcessor
+
+# 1. Initialize with MultiModalProcessor
+app = FluxApp(enable_multimodal=True)
+processor = MultiModalProcessor()
+llm = OpenAIProvider(model="gpt-4-turbo-2024-04-09") # Assumes this is a Vision model
+
 @app.agent()
-async def expensive_agent(query: str, cache) -> dict:
-    """Agent with automatic semantic caching."""
+async def vision_agent(image_path: str, prompt: str) -> dict:
+    # 2. Process image file
+    image_input = processor.process_image(image_path)
     
-    # Cache checked automatically before execution
-    # Semantically similar queries return cached results
+    # 3. Call the standardized multimodal method
+    response = await llm.multimodal_generate(
+        prompt=prompt,
+        media_inputs=[image_input]
+    )
     
-    result = await expensive_llm_call(query)
-    return {"answer": result}
+    return {"analysis": response.text}
 
-# Manual cache control
-cache.set(query, result, ttl=3600)  # 1 hour
-cached = cache.get(query, threshold=0.9)  # 90% similarity
-stats = cache.get_stats()  # Hit rate, size, etc.
-```
 
-**Cache Strategies:**
 
-- **Exact**: Hash-based matching (instant)
-- **Semantic**: Embedding similarity (intelligent)
-- **Hybrid**: Try exact first, fallback to semantic
+Complete Examples
 
-**Performance:**
 
-- 90%+ hit rate on similar queries
-- Configurable similarity thresholds
-- TTL expiration and LRU eviction
-- Real-time statistics
+Customer Support Bot
 
----
 
-## Complete Examples
+Python
 
-### Customer Support Bot
 
-```python
 from fluxgraph import FluxApp
 from fluxgraph.core import MemoryType
 
@@ -394,11 +365,15 @@ async def support_bot(
     )
     
     return {"response": response, "sources": kb_results}
-```
 
-### Research Pipeline
 
-```python
+
+Research Pipeline
+
+
+Python
+
+
 from fluxgraph import FluxApp
 from fluxgraph.core import WorkflowBuilder
 
@@ -437,11 +412,15 @@ workflow = (WorkflowBuilder("research")
     .build())
 
 result = await workflow.execute({"query": "AI trends 2025"})
-```
 
-### Multi-Agent System
 
-```python
+
+Multi-Agent System
+
+
+Python
+
+
 @app.agent()
 async def supervisor(task: str, call_agent, broadcast) -> dict:
     """Orchestrates specialized agents."""
@@ -451,17 +430,20 @@ async def supervisor(task: str, call_agent, broadcast) -> dict:
         data=research
     )
     return {"results": analyses}
-```
 
----
 
-## Enterprise Features
 
-### Production Configuration
+Enterprise Features
 
-```python
+
+Production Configuration
+
+
+Python
+
+
 app = FluxApp(
-    # v3.0 Features
+    # v3.2 Features
     enable_workflows=True,
     enable_advanced_memory=True,
     enable_agent_cache=True,
@@ -477,11 +459,15 @@ app = FluxApp(
     # Orchestration
     enable_orchestration=True
 )
-```
 
-### Streaming Responses
 
-```python
+
+Streaming Responses
+
+
+Python
+
+
 from fastapi.responses import StreamingResponse
 
 @app.api.get("/stream/{agent_name}")
@@ -492,11 +478,15 @@ async def stream_agent(agent_name: str, query: str):
         ):
             yield f"data: {chunk}\n\n"
     return StreamingResponse(generate(), media_type="text/event-stream")
-```
 
-### Security Features
 
-```python
+
+Security Features
+
+
+Python
+
+
 @app.agent()
 async def secure_agent(user_input: str) -> dict:
     """Automatically protected against threats."""
@@ -507,17 +497,19 @@ async def secure_agent(user_input: str) -> dict:
     
     response = await process(user_input)
     return {"response": response}
-```
 
-**Supported PII Types:**
+
+Supported PII Types:
 EMAIL, PHONE, SSN, CREDIT_CARD, IP_ADDRESS, PASSPORT, DRIVER_LICENSE, DATE_OF_BIRTH, MEDICAL_RECORD
-
-**Injection Detection:**
+Injection Detection:
 IGNORE_PREVIOUS, ROLE_PLAY, ENCODED_INJECTION, DELIMITER_INJECTION, PRIVILEGE_ESCALATION, CONTEXT_OVERFLOW, PAYLOAD_SPLITTING
 
-### Human-in-the-Loop
+Human-in-the-Loop
 
-```python
+
+Python
+
+
 @app.agent()
 async def critical_agent(action: str) -> dict:
     approval = await app.hitl_manager.request_approval(
@@ -530,11 +522,15 @@ async def critical_agent(action: str) -> dict:
     if await approval.wait_for_approval():
         return {"status": "executed", "result": execute_action(action)}
     return {"status": "rejected"}
-```
 
-### Batch Processing
 
-```python
+
+Batch Processing
+
+
+Python
+
+
 # Submit 1000 tasks
 job_id = await app.batch_processor.submit_batch(
     agent_name="data_processor",
@@ -546,26 +542,33 @@ job_id = await app.batch_processor.submit_batch(
 # Check status
 status = app.batch_processor.get_job_status(job_id)
 # {completed: 850, failed: 2, pending: 148}
-```
 
-### Cost Tracking
 
-```python
+
+Cost Tracking
+
+
+Python
+
+
 # Automatic per-agent cost tracking
 costs = app.orchestrator.cost_tracker.get_summary()
 # {
 #   "research_agent": {"cost": "$2.34", "calls": 145},
 #   "summary_agent": {"cost": "$0.87", "calls": 89}
 # }
-```
 
----
 
-## Production Deployment
 
-### Docker Compose
+Production Deployment
 
-```yaml
+
+Docker Compose
+
+
+YAML
+
+
 version: '3.8'
 services:
   fluxgraph:
@@ -590,11 +593,15 @@ services:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
-```
 
-### Kubernetes
 
-```yaml
+
+Kubernetes
+
+
+YAML
+
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -618,123 +625,168 @@ spec:
           limits:
             memory: "2Gi"
             cpu: "2000m"
-```
 
----
 
-## API Reference
 
-### Core Endpoints
+API Reference
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/ask/{agent}` | POST | Execute agent |
-| `/stream/{agent}` | GET | Stream response |
-| `/workflows` | GET | List workflows |
-| `/workflows/{name}/execute` | POST | Execute workflow |
-| `/memory/stats` | GET | Memory statistics |
-| `/memory/recall` | POST | Semantic search |
-| `/cache/stats` | GET | Cache statistics |
-| `/system/status` | GET | System health |
-| `/system/costs` | GET | Cost summary |
 
----
+Core Endpoints
 
-## Supported Integrations
+Endpoint
+Method
+Description
+/ask/{agent}
+POST
+Execute agent
+/stream/{agent}
+GET
+Stream response
+/workflows
+GET
+List workflows
+/workflows/{name}/execute
+POST
+Execute workflow
+/memory/stats
+GET
+Memory statistics
+/memory/recall
+POST
+Semantic search
+/cache/stats
+GET
+Cache statistics
+/system/status
+GET
+System health
+/system/costs
+GET
+Cost summary
 
-### LLM Providers
 
-| Provider | Models | Streaming | Cost Tracking |
-|----------|--------|-----------|---------------|
-| OpenAI | GPT-3.5, GPT-4, GPT-4 Turbo | ✅ | ✅ |
-| Anthropic | Claude 3 (Haiku, Sonnet, Opus) | ✅ | ✅ |
-| Google | Gemini Pro, Ultra | ✅ | ✅ |
-| Groq | Mixtral, Llama 3 | ✅ | ✅ |
-| Ollama | All local models | ✅ | ❌ |
-| Azure OpenAI | GPT models | ✅ | ✅ |
+Supported Integrations
 
-### Memory Backends
 
-| Backend | Use Case | Configuration |
-|---------|----------|---------------|
-| PostgreSQL | Production persistence | `DATABASE_URL` |
-| Redis | Fast session storage | `REDIS_URL` |
-| SQLite | Development/testing | Local file |
-| In-Memory | Temporary stateless | None |
+LLM Providers
 
----
+Provider
+Models
+Streaming
+Cost Tracking
+Multimodal
+OpenAI
+GPT-3.5, GPT-4, GPT-4 Turbo
+✅
+✅
+✅
+Anthropic
+Claude 3 (Haiku, Sonnet, Opus)
+✅
+✅
+✅
+Google
+Gemini Pro, Ultra
+✅
+✅
+✅
+Groq
+Mixtral, Llama 3
+✅
+✅
+❌
+Ollama
+All local models
+✅
+✅
+❌
+Azure OpenAI
+GPT models
+✅
+✅
+✅
 
-## Performance
 
-**v3.0 Benchmarks:**
+Memory Backends
 
-- **Cache Hit Rate**: 85-95% on similar queries
-- **Cost Reduction**: 70%+ with semantic caching
-- **Memory Consolidation**: <50ms for 1000 entries
-- **Workflow Execution**: 100+ steps/second
-- **Latency**: <10ms overhead for v3.0 features
+Backend
+Use Case
+Configuration
+PostgreSQL
+Production persistence
+DATABASE_URL
+Redis
+Fast session storage
+REDIS_URL
+SQLite
+Development/testing
+Local file
+In-Memory
+Temporary stateless
+None
 
----
 
-## Development Roadmap
+Performance
 
-### ✅ v3.0 (Current - October 2025)
+v3.2 Benchmarks:
+Cache Hit Rate: 85-95% on similar queries
+Cost Reduction: 70%+ with semantic caching
+Memory Consolidation: <50ms for 1000 entries
+Workflow Execution: 100+ steps/second
+Latency: <10ms overhead for v3.2 features
 
-Graph workflows, advanced memory, semantic caching, all enterprise features
+Development Roadmap
 
-### 🚧 v3.1 (Q1 2026)
 
-- Visual workflow designer UI
-- Agent learning & optimization
-- Multi-modal workflows
-- Enhanced observability
+✅ v3.2 (Current - October 2025)
 
-### 📋 v3.2 (Q2 2026)
+Full Conditional Workflows
+Accurate Cost Tracking/Tokenization
+Intelligent Hierarchical Delegation
+Standardized Multimodal API (GPT-4V, Gemini)
+LCEL-style Chains, Distributed Tracing, Batch Optimization
 
-- Distributed agent execution
-- Auto-scaling workflows
-- Advanced analytics dashboard
-- Enterprise SSO
+🚧 v3.3 (Q1 2026)
 
----
+Visual workflow designer UI
+Agent learning & optimization
+Enhanced observability & Monitoring Dashboard
 
-## Community & Support
+📋 v3.4 (Q2 2026)
 
-- **Documentation**: [fluxgraph.readthedocs.io](https://fluxgraph.readthedocs.io)
-- **Discord**: [Join Community](https://discord.gg/Z9bAqjYvPc)
-- **GitHub**: [Issues](https://github.com/ihtesham-jahangir/fluxgraph/issues) | [Discussions](https://github.com/ihtesham-jahangir/fluxgraph/discussions)
-- **Enterprise**: [enterprise@fluxgraph.com](mailto:enterprise@fluxgraph.com)
+Distributed agent execution
+Auto-scaling workflows
+Enterprise SSO (Single Sign-On)
 
----
+Community & Support
 
-## Contributing
+Documentation: fluxgraph.readthedocs.io
+Discord: Join Community
+GitHub: Issues | Discussions
+Enterprise: enterprise@fluxgraph.com
 
-```bash
-git clone https://github.com/ihtesham-jahangir/fluxgraph.git
+Contributing
+
+
+Bash
+
+
+git clone [https://github.com/ihtesham-jahangir/fluxgraph.git](https://github.com/ihtesham-jahangir/fluxgraph.git)
 cd fluxgraph
 python -m venv venv
 source venv/bin/activate
 pip install -e ".[dev]"
 pytest tests/
-```
+
 
 We welcome contributions in core features, security, documentation, testing, and integrations.
-
----
-
-## License
-
-MIT License - Free and open-source forever. No vendor lock-in.
-
-See [LICENSE](LICENSE) file for details.
-
----
-
 <div align="center">
-  <p><strong>FluxGraph 3.0</strong></p>
-  <p>The most advanced open-source AI agent framework</p>
-  <p>Graph workflows • Semantic caching • Hybrid memory • Enterprise security</p>
-  <br/>
-  <p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
-  <p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
+<p><strong>FluxGraph 3.2</strong></p>
+<p>The most advanced open-source AI agent framework</p>
+<p>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security</p>
+
+
+
+<p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
+<p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
 </div>
