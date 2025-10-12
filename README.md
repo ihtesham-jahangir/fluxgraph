@@ -1,6 +1,3 @@
-Hello\! I understand you want the latest, complete Markdown content for your **`README.md`** file, ensuring all the new features and examples we just implemented are correctly formatted for easy copy-pasting.
-
-Here is the fully updated `README.md` content, ready to be copied into your file.
 
 -----
 
@@ -682,11 +679,11 @@ We welcome contributions in core features, security, documentation, testing, and
 
 
 
-<div align="center"\>
-<p\>\<strong\>FluxGraph 3.2</strong\></p\>
-<p\>The most advanced open-source AI agent framework\</p\>
-<p\>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security</p\>
+<div align="center">
+<p><strong>FluxGraph 3.2</strong></p>
+<p>The most advanced open-source AI agent framework\</p>
+<p>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security</p>
 <br>
-<p\><em\>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em\></p\>
-<p\><a href="https://github.com/ihtesham-jahangir/fluxgraph"\>GitHub\</a\> • <a href="https://fluxgraph.readthedocs.io"\>Docs\</a\> • \<a href="https://discord.gg/Z9bAqjYvPc"\>Discord</a\></p\>
-</div\>
+<p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
+<p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub\</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc"\>Discord</a></p>
+</div>
