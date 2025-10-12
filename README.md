@@ -1,3 +1,10 @@
+Hello\! I understand you want the latest, complete Markdown content for your **`README.md`** file, ensuring all the new features and examples we just implemented are correctly formatted for easy copy-pasting.
+
+Here is the fully updated `README.md` content, ready to be copied into your file.
+
+-----
+
+````markdown
 <div align="center">
   <img src="https://github.com/ihtesham-jahangir/fluxgraph/blob/main/logo.jpeg" alt="FluxGraph Logo" width="200" height="200"/>
 </div>
@@ -95,29 +102,40 @@ FluxGraph is the **most complete open-source AI agent framework** for production
   <img src="fluxgraph-architecture.png" alt="FluxGraph Architecture" width="100%"/>
 </div>
 
-Installation
+### System Overview
 
+```ascii
+┌─────────────────────────────────────────────────────────┐
+│                    FluxGraph v3.2                       │
+├─────────────────────────────────────────────────────────┤
+│  🔀 Workflow Engine (Conditional) │  ⚡ Semantic Cache  │  🧠 Hybrid Memory  │
+├─────────────────────────────────────────────────────────┤
+│              Advanced Orchestrator                      │
+│   Circuit Breakers • Cost Tracking (Accurate) • Smart Routing     │
+├─────────────────────────────────────────────────────────┤
+│  🔒 Security Layer (PII, Injection, RBAC, Audit)       │
+├─────────────────────────────────────────────────────────┤
+│  Agent Registry  │  Tool Registry  │  RAG System (Multimodal)       │
+└─────────────────────────────────────────────────────────┘
+````
 
-Quick Start
+-----
 
+## Installation
 
-Bash
+### Quick Start
 
-
+```bash
 # Full installation with v3.2 features
 pip install fluxgraph[all]
 
 # Minimal installation
 pip install fluxgraph
+```
 
+### Feature-Specific
 
-
-Feature-Specific
-
-
-Bash
-
-
+```bash
 # v3.2 core features (optimized for chains/workflows)
 pip install fluxgraph[chains,p0]
 
@@ -126,30 +144,27 @@ pip install fluxgraph[production,orchestration,security]
 
 # Everything
 pip install fluxgraph[all]
+```
 
+### Available Extras
 
+  - `p0` - Graph workflows, advanced memory, semantic caching
+  - `production` - Streaming, sessions, retry logic
+  - `security` - RBAC, audit logs, PII detection, Prompt Shield
+  - `orchestration` - Handoffs, HITL, batch processing
+  - `rag` - ChromaDB, embeddings, document processing
+  - `postgres` - PostgreSQL persistence
+  - `chains` - LCEL-style chaining, Tracing
+  - `full` - All production features
+  - `all` - Everything including dev tools
 
-Available Extras
+-----
 
-p0 - Graph workflows, advanced memory, semantic caching
-production - Streaming, sessions, retry logic
-security - RBAC, audit logs, PII detection, Prompt Shield
-orchestration - Handoffs, HITL, batch processing
-rag - ChromaDB, embeddings, document processing
-postgres - PostgreSQL persistence
-chains - LCEL-style chaining, Tracing
-full - All production features
-all - Everything including dev tools
+## Quick Start Guide
 
-Quick Start Guide
+### Hello World (30 seconds)
 
-
-Hello World (30 seconds)
-
-
-Python
-
-
+```python
 from fluxgraph import FluxApp
 
 app = FluxApp(title="My AI App")
@@ -162,15 +177,11 @@ async def assistant(message: str,**kwargs) -> dict:
 # Run: flux run app.py
 # Test: curl -X POST http://localhost:8000/ask/assistant \
 #       -d '{"message":"Hello!"}'
+```
 
+### LLM-Powered Agent
 
-
-LLM-Powered Agent
-
-
-Python
-
-
+```python
 import os
 from fluxgraph import FluxApp
 from fluxgraph.models import OpenAIProvider
@@ -187,19 +198,17 @@ async def assistant(query: str) -> dict:
     """AI assistant powered by GPT-4."""
     response = await llm.generate(f"Answer: {query}")
     return {"answer": response.get("text")}
+```
 
+-----
 
+## New in v3.2
 
-New in v3.2
-
-
-1. Graph-Based Workflows (Fully Conditional)
+### 1\. Graph-Based Workflows (Fully Conditional)
 
 The workflow engine is now guaranteed to support complex, multi-step agent logic with true conditional routing and looping.
 
-Python
-
-
+```python
 from fluxgraph import FluxApp
 from fluxgraph.core import WorkflowBuilder
 
@@ -227,21 +236,21 @@ workflow = (WorkflowBuilder("research_workflow")
     .build())
 
 result = await workflow.execute({"query": "AI trends 2025"})
+```
 
+**Features:**
 
-Features:
-Full Conditional Routing: Use any state variable or the last node's output to determine the next step.
-Robust Looping: Easily define self-correcting loops (e.g., retry research or analysis).
-State persistence across steps.
+  - **Full Conditional Routing:** Use any state variable or the last node's output to determine the next step.
+  - **Robust Looping:** Easily define self-correcting loops (e.g., retry research or analysis).
+  - State persistence across steps.
 
-2. Intelligent Multi-Agent System (Hierarchical Delegation)
+### 2\. Intelligent Multi-Agent System (Hierarchical Delegation)
 
-Hierarchical crew execution now uses skill-based matching to ensure tasks are intelligently routed to the most appropriate specialist agent, delivering superior multi-agent results.
+Hierarchical crew execution now uses **skill-based matching** to ensure tasks are intelligently routed to the most appropriate specialist agent, delivering superior multi-agent results.
 
-Python
-
-
+```python
 from fluxgraph.crew import Crew, RoleAgent, Task, ProcessType
+from fluxgraph.crew.delegation import DelegationStrategy
 
 # Define specialist agents
 researcher = RoleAgent(role="Senior Market Researcher", goal="Conduct deep analysis...", backstory="...")
@@ -259,16 +268,14 @@ crew = Crew(
 # Manager automatically assigns task1 (Find data) to Researcher
 # and task2 (Write summary) to Writer using skill matching.
 result = await crew.kickoff()
+```
 
+### 3\. Multimodal & Vision Ready
 
+The framework introduces a standardized `multimodal_generate` function to support models like GPT-4V and Gemini Vision, allowing agents to process images and audio alongside text.
 
-3. Multimodal & Vision Ready
-
-The framework introduces a standardized multimodal_generate function to support models like GPT-4V and Gemini Vision, allowing agents to process images and audio alongside text.
-
-Python
-
-
+```python
+import os
 from fluxgraph import FluxApp
 from fluxgraph.models import OpenAIProvider
 from fluxgraph.multimodal.processor import MultiModalProcessor
@@ -276,11 +283,13 @@ from fluxgraph.multimodal.processor import MultiModalProcessor
 # 1. Initialize with MultiModalProcessor
 app = FluxApp(enable_multimodal=True)
 processor = MultiModalProcessor()
-llm = OpenAIProvider(model="gpt-4-turbo-2024-04-09") # Assumes this is a Vision model
+llm = OpenAIProvider(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4-vision-preview")
 
 @app.agent()
 async def vision_agent(image_path: str, prompt: str) -> dict:
-    # 2. Process image file
+    """An agent capable of processing images and text."""
+
+    # 2. Process image file into a standardized input object (Base64 Data URI)
     image_input = processor.process_image(image_path)
     
     # 3. Call the standardized multimodal method
@@ -289,19 +298,16 @@ async def vision_agent(image_path: str, prompt: str) -> dict:
         media_inputs=[image_input]
     )
     
-    return {"analysis": response.text}
+    return {"analysis": response.text, "source_image": image_path}
+```
 
+-----
 
+## Complete Examples
 
-Complete Examples
+### Customer Support Bot
 
-
-Customer Support Bot
-
-
-Python
-
-
+```python
 from fluxgraph import FluxApp
 from fluxgraph.core import MemoryType
 
@@ -347,15 +353,11 @@ async def support_bot(
     )
     
     return {"response": response, "sources": kb_results}
+```
 
+### Research Pipeline
 
-
-Research Pipeline
-
-
-Python
-
-
+```python
 from fluxgraph import FluxApp
 from fluxgraph.core import WorkflowBuilder
 
@@ -394,15 +396,11 @@ workflow = (WorkflowBuilder("research")
     .build())
 
 result = await workflow.execute({"query": "AI trends 2025"})
+```
 
+### Multi-Agent System
 
-
-Multi-Agent System
-
-
-Python
-
-
+```python
 @app.agent()
 async def supervisor(task: str, call_agent, broadcast) -> dict:
     """Orchestrates specialized agents."""
@@ -412,18 +410,15 @@ async def supervisor(task: str, call_agent, broadcast) -> dict:
         data=research
     )
     return {"results": analyses}
+```
 
+-----
 
+## Enterprise Features
 
-Enterprise Features
+### Production Configuration
 
-
-Production Configuration
-
-
-Python
-
-
+```python
 app = FluxApp(
     # v3.2 Features
     enable_workflows=True,
@@ -441,15 +436,11 @@ app = FluxApp(
     # Orchestration
     enable_orchestration=True
 )
+```
 
+### Streaming Responses
 
-
-Streaming Responses
-
-
-Python
-
-
+```python
 from fastapi.responses import StreamingResponse
 
 @app.api.get("/stream/{agent_name}")
@@ -460,15 +451,11 @@ async def stream_agent(agent_name: str, query: str):
         ):
             yield f"data: {chunk}\n\n"
     return StreamingResponse(generate(), media_type="text/event-stream")
+```
 
+### Security Features
 
-
-Security Features
-
-
-Python
-
-
+```python
 @app.agent()
 async def secure_agent(user_input: str) -> dict:
     """Automatically protected against threats."""
@@ -479,19 +466,16 @@ async def secure_agent(user_input: str) -> dict:
     
     response = await process(user_input)
     return {"response": response}
+```
 
+**Supported PII Types:**
+EMAIL, PHONE, SSN, CREDIT\_CARD, IP\_ADDRESS, PASSPORT, DRIVER\_LICENSE, DATE\_OF\_BIRTH, MEDICAL\_RECORD
+**Injection Detection:**
+IGNORE\_PREVIOUS, ROLE\_PLAY, ENCODED\_INJECTION, DELIMITER\_INJECTION, PRIVILEGE\_ESCALATION, CONTEXT\_OVERFLOW, PAYLOAD\_SPLITTING
 
-Supported PII Types:
-EMAIL, PHONE, SSN, CREDIT_CARD, IP_ADDRESS, PASSPORT, DRIVER_LICENSE, DATE_OF_BIRTH, MEDICAL_RECORD
-Injection Detection:
-IGNORE_PREVIOUS, ROLE_PLAY, ENCODED_INJECTION, DELIMITER_INJECTION, PRIVILEGE_ESCALATION, CONTEXT_OVERFLOW, PAYLOAD_SPLITTING
+### Human-in-the-Loop
 
-Human-in-the-Loop
-
-
-Python
-
-
+```python
 @app.agent()
 async def critical_agent(action: str) -> dict:
     approval = await app.hitl_manager.request_approval(
@@ -504,15 +488,11 @@ async def critical_agent(action: str) -> dict:
     if await approval.wait_for_approval():
         return {"status": "executed", "result": execute_action(action)}
     return {"status": "rejected"}
+```
 
+### Batch Processing
 
-
-Batch Processing
-
-
-Python
-
-
+```python
 # Submit 1000 tasks
 job_id = await app.batch_processor.submit_batch(
     agent_name="data_processor",
@@ -524,33 +504,26 @@ job_id = await app.batch_processor.submit_batch(
 # Check status
 status = app.batch_processor.get_job_status(job_id)
 # {completed: 850, failed: 2, pending: 148}
+```
 
+### Cost Tracking
 
-
-Cost Tracking
-
-
-Python
-
-
+```python
 # Automatic per-agent cost tracking
 costs = app.orchestrator.cost_tracker.get_summary()
 # {
 #   "research_agent": {"cost": "$2.34", "calls": 145},
 #   "summary_agent": {"cost": "$0.87", "calls": 89}
 # }
+```
 
+-----
 
+## Production Deployment
 
-Production Deployment
+### Docker Compose
 
-
-Docker Compose
-
-
-YAML
-
-
+```yaml
 version: '3.8'
 services:
   fluxgraph:
@@ -575,15 +548,11 @@ services:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
+```
 
+### Kubernetes
 
-
-Kubernetes
-
-
-YAML
-
-
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -607,168 +576,117 @@ spec:
           limits:
             memory: "2Gi"
             cpu: "2000m"
+```
 
+-----
 
+## API Reference
 
-API Reference
+### Core Endpoints
 
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/ask/{agent}` | POST | Execute agent |
+| `/stream/{agent}` | GET | Stream response |
+| `/workflows` | GET | List workflows |
+| `/workflows/{name}/execute` | POST | Execute workflow |
+| `/memory/stats` | GET | Memory statistics |
+| `/memory/recall` | POST | Semantic search |
+| `/cache/stats` | GET | Cache statistics |
+| `/system/status` | GET | System health |
+| `/system/costs` | GET | Cost summary |
 
-Core Endpoints
+-----
 
-Endpoint
-Method
-Description
-/ask/{agent}
-POST
-Execute agent
-/stream/{agent}
-GET
-Stream response
-/workflows
-GET
-List workflows
-/workflows/{name}/execute
-POST
-Execute workflow
-/memory/stats
-GET
-Memory statistics
-/memory/recall
-POST
-Semantic search
-/cache/stats
-GET
-Cache statistics
-/system/status
-GET
-System health
-/system/costs
-GET
-Cost summary
+## Supported Integrations
 
+### LLM Providers
 
-Supported Integrations
+| Provider | Models | Streaming | Cost Tracking | Multimodal |
+|----------|--------|-----------|---------------|------------|
+| OpenAI | GPT-3.5, GPT-4, GPT-4 Turbo | ✅ | ✅ | ✅ |
+| Anthropic | Claude 3 (Haiku, Sonnet, Opus) | ✅ | ✅ | ✅ |
+| Google | Gemini Pro, Ultra | ✅ | ✅ | ✅ |
+| Groq | Mixtral, Llama 3 | ✅ | ✅ | ❌ |
+| Ollama | All local models | ✅ | ✅ | ❌ |
+| Azure OpenAI | GPT models | ✅ | ✅ | ✅ |
 
+### Memory Backends
 
-LLM Providers
+| Backend | Use Case | Configuration |
+|---------|----------|---------------|
+| PostgreSQL | Production persistence | `DATABASE_URL` |
+| Redis | Fast session storage | `REDIS_URL` |
+| SQLite | Development/testing | Local file |
+| In-Memory | Temporary stateless | None |
 
-Provider
-Models
-Streaming
-Cost Tracking
-Multimodal
-OpenAI
-GPT-3.5, GPT-4, GPT-4 Turbo
-✅
-✅
-✅
-Anthropic
-Claude 3 (Haiku, Sonnet, Opus)
-✅
-✅
-✅
-Google
-Gemini Pro, Ultra
-✅
-✅
-✅
-Groq
-Mixtral, Llama 3
-✅
-✅
-❌
-Ollama
-All local models
-✅
-✅
-❌
-Azure OpenAI
-GPT models
-✅
-✅
-✅
+-----
 
+## Performance
 
-Memory Backends
+**v3.2 Benchmarks:**
 
-Backend
-Use Case
-Configuration
-PostgreSQL
-Production persistence
-DATABASE_URL
-Redis
-Fast session storage
-REDIS_URL
-SQLite
-Development/testing
-Local file
-In-Memory
-Temporary stateless
-None
+  - **Cache Hit Rate**: 85-95% on similar queries
+  - **Cost Reduction**: 70%+ with semantic caching
+  - **Memory Consolidation**: \<50ms for 1000 entries
+  - **Workflow Execution**: 100+ steps/second
+  - **Latency**: \<10ms overhead for v3.2 features
 
+-----
 
-Performance
+## Development Roadmap
 
-v3.2 Benchmarks:
-Cache Hit Rate: 85-95% on similar queries
-Cost Reduction: 70%+ with semantic caching
-Memory Consolidation: <50ms for 1000 entries
-Workflow Execution: 100+ steps/second
-Latency: <10ms overhead for v3.2 features
+### ✅ v3.2 (Current - October 2025)
 
-Development Roadmap
+  - **Full Conditional Workflows**
+  - **Accurate Cost Tracking/Tokenization**
+  - **Intelligent Hierarchical Delegation**
+  - **Standardized Multimodal API (GPT-4V, Gemini)**
+  - LCEL-style Chains, Distributed Tracing, Batch Optimization
 
+### 🚧 v3.3 (Q1 2026)
 
-✅ v3.2 (Current - October 2025)
+  - Visual workflow designer UI
+  - Agent learning & optimization
+  - Enhanced observability & Monitoring Dashboard
 
-Full Conditional Workflows
-Accurate Cost Tracking/Tokenization
-Intelligent Hierarchical Delegation
-Standardized Multimodal API (GPT-4V, Gemini)
-LCEL-style Chains, Distributed Tracing, Batch Optimization
+### 📋 v3.4 (Q2 2026)
 
-🚧 v3.3 (Q1 2026)
+  - Distributed agent execution
+  - Auto-scaling workflows
+  - Enterprise SSO (Single Sign-On)
 
-Visual workflow designer UI
-Agent learning & optimization
-Enhanced observability & Monitoring Dashboard
+-----
 
-📋 v3.4 (Q2 2026)
+## Community & Support
 
-Distributed agent execution
-Auto-scaling workflows
-Enterprise SSO (Single Sign-On)
+  - **Documentation**: [fluxgraph.readthedocs.io](https://fluxgraph.readthedocs.io)
+  - **Discord**: [Join Community](https://discord.gg/Z9bAqjYvPc)
+  - **GitHub**: [Issues](https://github.com/ihtesham-jahangir/fluxgraph/issues) | [Discussions](https://github.com/ihtesham-jahangir/fluxgraph/discussions)
+  - **Enterprise**: [enterprise@fluxgraph.com](mailto:enterprise@fluxgraph.com)
 
-Community & Support
+-----
 
-Documentation: fluxgraph.readthedocs.io
-Discord: Join Community
-GitHub: Issues | Discussions
-Enterprise: enterprise@fluxgraph.com
+## Contributing
 
-Contributing
-
-
-Bash
-
-
+```bash
 git clone [https://github.com/ihtesham-jahangir/fluxgraph.git](https://github.com/ihtesham-jahangir/fluxgraph.git)
 cd fluxgraph
 python -m venv venv
 source venv/bin/activate
 pip install -e ".[dev]"
 pytest tests/
-
+```
 
 We welcome contributions in core features, security, documentation, testing, and integrations.
-<div align="center">
-<p><strong>FluxGraph 3.2</strong></p>
-<p>The most advanced open-source AI agent framework</p>
-<p>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security</p>
 
+-----
 
-
-<p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
-<p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
-</div>
+\<div align="center"\>
+\<p\>\<strong\>FluxGraph 3.2\</strong\>\</p\>
+\<p\>The most advanced open-source AI agent framework\</p\>
+\<p\>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security\</p\>
+<br>
+\<p\>\<em\>⭐ Star us on GitHub if FluxGraph powers your AI systems\!\</em\>\</p\>
+\<p\>\<a href="https://github.com/ihtesham-jahangir/fluxgraph"\>GitHub\</a\> • \<a href="https://fluxgraph.readthedocs.io"\>Docs\</a\> • \<a href="https://discord.gg/Z9bAqjYvPc"\>Discord\</a\>\</p\>
+\</div\>
