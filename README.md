@@ -681,9 +681,9 @@ We welcome contributions in core features, security, documentation, testing, and
 
 <div align="center">
 <p><strong>FluxGraph 3.2</strong></p>
-<p>The most advanced open-source AI agent framework\</p>
+<p>The most advanced open-source AI agent framework</p>
 <p>Conditional Workflows • Multimodal Ready • Accurate Cost Tracking • Enterprise Security</p>
 <br>
 <p><em>⭐ Star us on GitHub if FluxGraph powers your AI systems!</em></p>
-<p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub\</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc"\>Discord</a></p>
+<p><a href="https://github.com/ihtesham-jahangir/fluxgraph">GitHub</a> • <a href="https://fluxgraph.readthedocs.io">Docs</a> • <a href="https://discord.gg/Z9bAqjYvPc">Discord</a></p>
 </div>
