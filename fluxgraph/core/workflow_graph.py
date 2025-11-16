@@ -1,6 +1,7 @@
 """
 Graph-Based Workflow Orchestration
 Enables complex agent workflows with conditional routing, loops, and state management
+(Now with Checkpointing and Observability support)
 """
 
 import asyncio
@@ -10,6 +11,25 @@ from enum import Enum
 from dataclasses import dataclass, field
 from datetime import datetime
 import json
+
+# Import the new logger and checkpointer interfaces
+try:
+    from .checkpointer import BaseCheckpointer
+except ImportError:
+    # Define a placeholder if the import fails, to allow type hinting
+    class BaseCheckpointer: pass
+
+try:
+    from .logger import BaseLogger, LogEventType
+except ImportError:
+    # Define placeholders if the import fails
+    class BaseLogger: pass
+    class LogEventType:
+        WORKFLOW_START = "workflow_start"
+        WORKFLOW_END = "workflow_end"
+        NODE_START = "node_start"
+        NODE_END = "node_end"
+        NODE_ERROR = "node_error"
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +46,11 @@ class NodeType(Enum):
 
 @dataclass
 class WorkflowState:
-    """State container for workflow execution."""
+    """State container for workflow execution. (Now checkpoint-ready)"""
+    workflow_id: str  # Add a unique ID for saving/loading
     data: Dict[str, Any] = field(default_factory=dict)
     history: List[Dict[str, Any]] = field(default_factory=list)
-    current_node: Optional[str] = None
+    current_node: Optional[str] = None # This will now store the *next* node to run
     current_node_result: Optional[Any] = None 
     iteration_count: int = 0
     max_iterations: int = 100
@@ -43,7 +64,8 @@ class WorkflowState:
             "node": self.current_node,
             "action": "update",
             "key": key,
-            "value": value
+            # Truncate value if it's too large for history
+            "value": str(value)[:200] + "..." if isinstance(value, str) and len(value) > 200 else value
         })
     
     def get(self, key: str, default=None) -> Any:
@@ -53,11 +75,24 @@ class WorkflowState:
     def to_dict(self) -> Dict[str, Any]:
         """Serialize state to dict."""
         return {
+            "workflow_id": self.workflow_id, # Add ID
             "data": self.data,
+            "history": [h for h in self.history if isinstance(h, (dict, list, str, int, float, bool))], # Ensure history is JSON-serializable
             "current_node": self.current_node,
             "iteration_count": self.iteration_count,
+            "max_iterations": self.max_iterations, # Add max_iterations
             "created_at": self.created_at.isoformat()
         }
+
+    # Add a classmethod to re-hydrate the state easily
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'WorkflowState':
+        """Re-hydrate state from dict."""
+        data['created_at'] = datetime.fromisoformat(data['created_at'])
+        # Handle potential unserializable items in history (if any)
+        if 'current_node_result' in data:
+            del data['current_node_result'] # This is transient, don't restore
+        return cls(**data)
 
 
 @dataclass
@@ -79,13 +114,19 @@ class WorkflowGraph:
     Graph-based workflow orchestration system.
     """
     
-    def __init__(self, name: str = "workflow"):
+    def __init__(
+        self, 
+        name: str = "workflow", 
+        checkpointer: Optional[BaseCheckpointer] = None,
+        logger: Optional[BaseLogger] = None  # Add logger
+    ):
         self.name = name
+        self.checkpointer = checkpointer
+        self.logger = logger  # Store the logger
         self.nodes: Dict[str, WorkflowNode] = {}
         self.edges: Dict[str, List[str]] = {}
         self.conditional_edges: Dict[str, Dict[str, Any]] = {} 
         self.entry_point: Optional[str] = None
-        self.state: Optional[WorkflowState] = None
         
         # Add special end node
         self.add_node("__end__", NodeType.END)
@@ -155,74 +196,121 @@ class WorkflowGraph:
     
     async def execute(
         self,
+        workflow_id: str, # Require a workflow_id
         initial_data: Optional[Dict[str, Any]] = None,
         max_iterations: int = 100
     ) -> Dict[str, Any]:
         """
-        Execute the workflow graph.
+        Execute the workflow graph step-by-step with checkpointing and logging.
         """
         if not self.entry_point:
             raise ValueError("Entry point not set")
+
+        state: Optional[WorkflowState] = None
+
+        # 1. Load or initialize state
+        if self.checkpointer:
+            state = await self.checkpointer.load_state(workflow_id)
+            
+        if state is None:
+            # New workflow
+            state = WorkflowState(
+                workflow_id=workflow_id,
+                data=initial_data or {},
+                max_iterations=max_iterations,
+                current_node=self.entry_point
+            )
+            logger.info(f"Starting new workflow '{workflow_id}' from '{self.entry_point}'")
+            # LOG WORKFLOW START
+            if self.logger:
+                await self.logger.log_event(workflow_id, None, LogEventType.WORKFLOW_START, initial_data)
+        else:
+            # Resumed workflow
+            logger.info(f"Resuming workflow '{workflow_id}' from node '{state.current_node}'")
+
+        current_node = state.current_node
         
-        # Initialize state
-        self.state = WorkflowState(
-            data=initial_data or {},
-            max_iterations=max_iterations
-        )
-        
-        logger.info(f"Starting workflow '{self.name}' from '{self.entry_point}'")
-        
-        current_node = self.entry_point
-        
+        # 3. Run the loop
         while current_node != "__end__":
             # Check iteration limit
-            self.state.iteration_count += 1
-            if self.state.iteration_count > max_iterations:
-                raise RuntimeError(f"Max iterations ({max_iterations}) exceeded")
+            state.iteration_count += 1
+            if state.iteration_count > state.max_iterations:
+                error_msg = f"Max iterations ({state.max_iterations}) exceeded"
+                if self.logger:
+                    await self.logger.log_event(workflow_id, current_node, LogEventType.NODE_ERROR, {"error": error_msg})
+                raise RuntimeError(error_msg)
             
             # Get node
             if current_node not in self.nodes:
-                raise ValueError(f"Node '{current_node}' not found")
-            node = self.nodes[current_node]
-
-            # Update state for current node
-            self.state.current_node = current_node
+                error_msg = f"Node '{current_node}' not found"
+                if self.logger:
+                    await self.logger.log_event(workflow_id, current_node, LogEventType.NODE_ERROR, {"error": error_msg})
+                raise ValueError(error_msg)
             
-            # Execute node
+            node = self.nodes[current_node]
+            state.current_node = current_node # State reflects the node *being* run
+
+            # LOG NODE START
+            if self.logger:
+                # Log state *before* execution
+                await self.logger.log_event(workflow_id, current_node, LogEventType.NODE_START, state.to_dict())
+
+            result = None
+            error = None
+
             if node.node_type not in [NodeType.START, NodeType.END]:
-                logger.info(f"Executing node: {current_node} (type: {node.node_type.value})")
                 try:
-                    result = await self._execute_node(node)
-                    # Store result and update state's latest result for conditions
-                    self.state.update(f"{current_node}_result", result)
-                    self.state.current_node_result = result
+                    # Execute node
+                    result = await self._execute_node(node, state) 
+                    state.update(f"{current_node}_result", result)
+                    state.current_node_result = result
+                    
+                    # LOG NODE END (Success)
+                    if self.logger:
+                        # Truncate large results for logging
+                        log_data = {"result": str(result)[:500] + "..." if isinstance(result, str) and len(str(result)) > 500 else result} 
+                        await self.logger.log_event(workflow_id, current_node, LogEventType.NODE_END, log_data)
+
                 except Exception as e:
-                    logger.error(f"Error in node '{current_node}': {e}")
-                    self.state.update(f"{current_node}_error", str(e))
-                    # Pass error result to router
-                    self.state.current_node_result = {"error": str(e)} 
+                    error = str(e)
+                    logger.error(f"Error in node '{current_node}': {e}", exc_info=True)
+                    state.update(f"{current_node}_error", error)
+                    state.current_node_result = {"error": error} 
+                    
+                    # LOG NODE ERROR
+                    if self.logger:
+                        await self.logger.log_event(workflow_id, current_node, LogEventType.NODE_ERROR, {"error": error})
             else:
-                 # Ensure result is clear for routing purposes on start/end
-                 self.state.current_node_result = None
+                 state.current_node_result = None # Clear result for non-executing nodes
             
             # Determine next node
-            next_node = self._get_next_node(current_node)
+            next_node = self._get_next_node(current_node, state) # Pass state to router
             
             if next_node is None:
                 logger.warning(f"No valid next node defined from '{current_node}', ending workflow")
                 current_node = "__end__"
-            
-            current_node = next_node
+            else:
+                current_node = next_node
+                
+            state.current_node = current_node # State now points to the *next* node to run
+
+            # 4. Save state to checkpointer
+            if self.checkpointer:
+                logger.debug(f"Saving state for workflow '{workflow_id}' at next node '{current_node}'")
+                await self.checkpointer.save_state(state)
         
-        logger.info(f"Workflow '{self.name}' completed in {self.state.iteration_count} steps")
+        logger.info(f"Workflow '{self.name}' completed in {state.iteration_count} steps")
+        # LOG WORKFLOW END
+        if self.logger:
+            await self.logger.log_event(workflow_id, "__end__", LogEventType.WORKFLOW_END, state.to_dict())
         
         return {
-            "result": self.state.data,
-            "history": self.state.history,
-            "iterations": self.state.iteration_count
+            "result": state.data,
+            "history": state.history,
+            "iterations": state.iteration_count
         }
     
-    async def _execute_node(self, node: WorkflowNode) -> Any:
+    async def _execute_node(self, node: WorkflowNode, state: WorkflowState) -> Any:
         """Execute a single node."""
         if node.node_type in [NodeType.AGENT, NodeType.CONDITION]:
             if not node.handler:
@@ -230,25 +318,25 @@ class WorkflowGraph:
             
             # Execute agent or condition handler (handler should return data or routing key)
             if asyncio.iscoroutinefunction(node.handler):
-                return await node.handler(self.state)
+                return await node.handler(state) # Pass state
             # Run sync functions in a thread to prevent blocking the async event loop
-            return await asyncio.to_thread(node.handler, self.state) 
+            return await asyncio.to_thread(node.handler, state) # Pass state
         
         elif node.node_type == NodeType.PARALLEL:
             # Execute multiple handlers in parallel
             tasks = []
             for handler in node.metadata.get("handlers", []):
                 if asyncio.iscoroutinefunction(handler):
-                    tasks.append(handler(self.state))
+                    tasks.append(handler(state)) # Pass state
                 else:
                     # Run sync functions in a thread
-                    tasks.append(asyncio.to_thread(handler, self.state))
+                    tasks.append(asyncio.to_thread(handler, state)) # Pass state
             # Return list of results from parallel branches
             return await asyncio.gather(*tasks)
         
         return {"status": "no_action", "node_type": node.node_type.value}
     
-    def _get_next_node(self, current_node: str) -> Optional[str]:
+    def _get_next_node(self, current_node: str, state: WorkflowState) -> Optional[str]:
         """Determine next node based on edges and conditions."""
         
         # 1. Check Conditional Edges (Takes precedence)
@@ -260,12 +348,12 @@ class WorkflowGraph:
             # Evaluate condition function - expects a string key matching a route
             try:
                 # The condition is executed with the current state object
-                route_key = condition_func(self.state) 
+                route_key = condition_func(state) # Pass state
                 if not isinstance(route_key, str):
                     logger.error(f"Condition function for '{current_node}' returned non-string type: {type(route_key)}")
                     route_key = "error" # Fallback key on invalid type
             except Exception as e:
-                logger.error(f"Error evaluating condition for '{current_node}': {e}")
+                logger.error(f"Error evaluating condition for '{current_node}': {e}", exc_info=True)
                 route_key = "error" # Fallback key on error
             
             target = routes.get(route_key)
@@ -321,8 +409,13 @@ class WorkflowGraph:
 class WorkflowBuilder:
     """Fluent builder for creating workflow graphs."""
     
-    def __init__(self, name: str = "workflow"):
-        self.graph = WorkflowGraph(name)
+    def __init__(
+        self, 
+        name: str = "workflow", 
+        checkpointer: Optional[BaseCheckpointer] = None,
+        logger: Optional[BaseLogger] = None # Add logger
+    ):
+        self.graph = WorkflowGraph(name, checkpointer, logger) # Pass logger
     
     def add_agent(self, name: str, handler: Callable, metadata: Optional[Dict] = None):
         """Add an agent node."""

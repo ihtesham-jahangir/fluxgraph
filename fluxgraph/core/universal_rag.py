@@ -1,17 +1,7 @@
 # fluxgraph/core/universal_rag.py
 """
 Universal Document RAG Connector for FluxGraph.
-
-This module provides `UniversalRAG`, a concrete implementation of the
-`RAGConnector` interface. It leverages `langchain` and `unstructured`
-to load and process a wide variety of document types (PDF, DOCX, TXT, etc.)
-and uses `ChromaDB` for vector storage and retrieval.
-
-Features:
-- Single `ingest(file_path, metadata)` method for all supported document types.
-- Unified `query(question)` method returning relevant document chunks.
-- Uses LangChain's document loaders, splitters, and embedding models.
-- Integrates with ChromaDB for efficient similarity search.
+(Now with data-source-agnostic ingestion)
 """
 import os
 import logging
@@ -20,37 +10,33 @@ from typing import List, Dict, Any, Optional, Union
 import asyncio
 
 # --- CRITICAL UPDATE: Correct LangChain v0.2.x+ imports ---
-# Import the correct embedding model class
-# Requires: pip install langchain-huggingface
-from langchain_huggingface import HuggingFaceEmbeddings # <-- Corrected Import
-
-# Import the correct Chroma vector store class
-# Requires: pip install langchain-chroma
-from langchain_chroma import Chroma # <-- Corrected Import
-
-# Import other necessary LangChain components
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
     UnstructuredFileLoader,
-    UnstructuredPDFLoader,
-    UnstructuredWordDocumentLoader,
-    UnstructuredMarkdownLoader,
-    # Add more loaders as needed or rely on UnstructuredFileLoader's magic
+    WebBaseLoader  # <-- Add WebBaseLoader for URL ingestion
 )
 from langchain_core.documents import Document as LCDocument
 
 # Import FluxGraph RAG interface
 try:
-    from .rag import RAGConnector # Try relative import
+    # We now import Document as well
+    from .rag import RAGConnector, Document
     RAG_INTERFACE_AVAILABLE = True
 except (ImportError, ModuleNotFoundError):
     try:
-        from fluxgraph.core.rag import RAGConnector # Try absolute import
+        from fluxgraph.core.rag import RAGConnector, Document
         RAG_INTERFACE_AVAILABLE = True
     except (ImportError, ModuleNotFoundError):
         RAG_INTERFACE_AVAILABLE = False
-        # Define a dummy class for type hints if RAG interface is not available
+        # Define dummy classes for type hints
         class RAGConnector: pass
+        @dataclass
+        class Document:
+            content: str
+            metadata: Dict[str, Any] = field(default_factory=dict)
+            doc_id: Optional[str] = None
         logging.getLogger(__name__).debug("RAG interface not found. RAG features will be disabled.")
 
 logger = logging.getLogger(__name__)
@@ -58,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 class UniversalRAG(RAGConnector):
     """
-    A universal RAG connector supporting ingestion of various document types
+    A universal RAG connector supporting ingestion from various data sources
     and querying via LangChain + ChromaDB.
     """
 
@@ -72,13 +58,7 @@ class UniversalRAG(RAGConnector):
     ):
         """
         Initializes the UniversalRAG connector.
-
-        Args:
-            persist_directory (str): Directory to persist the ChromaDB database.
-            collection_name (str): Name of the ChromaDB collection.
-            embedding_model_name (str): Name of the sentence-transformers model.
-            chunk_size (int): Size of text chunks for splitting documents.
-            chunk_overlap (int): Overlap between chunks.
+        (No changes to __init__)
         """
         self.persist_directory = persist_directory
         self.collection_name = collection_name
@@ -87,23 +67,13 @@ class UniversalRAG(RAGConnector):
 
         logger.info("Initializing UniversalRAG with ChromaDB at '%s' using model '%s'", persist_directory, embedding_model_name)
 
-        # 1. Initialize Embedding Model
-        # Consider caching the model if used frequently
         try:
-            # --- CRITICAL UPDATE: Use the correctly imported class ---
-            # OLD/Wrong (leads to NameError if SentenceTransformerEmbeddings not imported):
-            # self.embedding_model = SentenceTransformerEmbeddings(model_name=embedding_model_name)
-            
-            # NEW/Correct (using langchain_huggingface):
             self.embedding_model = HuggingFaceEmbeddings(model_name=embedding_model_name)
-            # --- END OF CRITICAL UPDATE ---
-            
             logger.debug("HuggingFace embedding model '%s' loaded.", embedding_model_name)
         except Exception as e:
             logger.error("Failed to load embedding model '%s': %s", embedding_model_name, e)
             raise RuntimeError(f"Failed to initialize embedding model: {e}") from e
 
-        # 2. Initialize Text Splitter
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
@@ -111,153 +81,184 @@ class UniversalRAG(RAGConnector):
         )
         logger.debug("Text splitter configured (chunk_size=%d, chunk_overlap=%d)", chunk_size, chunk_overlap)
 
-        # 3. Initialize ChromaDB Vector Store
         try:
-            # --- CRITICAL UPDATE: Use the correctly imported class ---
-            # Ensure this line uses the `Chroma` imported from `langchain_chroma`
-            self.vector_store = Chroma( # <-- This `Chroma` must be the one from `langchain_chroma`
+            self.vector_store = Chroma(
                 collection_name=self.collection_name,
                 embedding_function=self.embedding_model,
                 persist_directory=self.persist_directory
             )
-            # --- END OF CRITICAL UPDATE ---
             logger.info("ChromaDB vector store initialized/loaded at '%s'", persist_directory)
         except Exception as e:
             logger.error("Failed to initialize ChromaDB at '%s': %s", persist_directory, e)
             raise RuntimeError(f"Failed to initialize ChromaDB: {e}") from e
 
-    async def ingest(self, file_path: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
-        """
-        Ingests a document from a file path into the RAG system.
 
-        Supports various file types thanks to `unstructured`.
-        The document is loaded, split into chunks, and added to the vector store.
+    # --- NEW: Core Ingestion Method ---
+    async def ingest_documents(self, documents: List[Document]) -> List[str]:
+        """
+        Ingests a list of standard Document objects into the RAG system.
+        This is the new core ingestion method.
 
         Args:
-            file_path (str): The path to the document file (e.g., 'docs/manual.pdf').
-            metadata (Optional[Dict[str, Any]]): Optional metadata to associate
-                                                with all chunks from this document.
-                                                E.g., {'source': 'manual.pdf', 'author': '...'}.
+            documents (List[Document]): A list of Document objects to ingest.
 
         Returns:
-            bool: True if ingestion was successful, False otherwise.
+            List[str]: A list of the unique document IDs that were ingested.
+        """
+        logger.info(f"Starting ingestion of {len(documents)} documents.")
+        
+        # Convert our standard Document to LangChain's Document
+        langchain_documents: List[LCDocument] = []
+        doc_ids_processed = set()
+        
+        for doc in documents:
+            # Ensure each document has a unique ID for metadata
+            if not doc.doc_id:
+                doc.doc_id = str(uuid.uuid4())
+            doc.metadata["doc_id"] = doc.doc_id
+            doc_ids_processed.add(doc.doc_id)
+            
+            langchain_documents.append(
+                LCDocument(
+                    page_content=doc.content,
+                    metadata=doc.metadata
+                )
+            )
 
-        Raises:
-            ValueError: If the file path is invalid or the file type is unsupported.
-            Exception: Propagates errors from loading, splitting, or storing.
+        try:
+            # --- 1. Split Documents into Chunks ---
+            split_documents: List[LCDocument] = self.text_splitter.split_documents(langchain_documents)
+            logger.debug(f"Split {len(documents)} documents into {len(split_documents)} chunks.")
+
+            if not split_documents:
+                logger.warning("No text content was extracted from the documents. Skipping ingestion.")
+                return []
+
+            # --- 2. Add Chunks to Vector Store ---
+            texts = [doc.page_content for doc in split_documents]
+            metadatas = [doc.metadata for doc in split_documents]
+
+            # Run in executor to prevent blocking the async event loop
+            await asyncio.get_event_loop().run_in_executor(
+                None, self.vector_store.add_texts, texts, metadatas
+            )
+
+            logger.info(f"Successfully ingested {len(documents)} documents ({len(split_documents)} chunks) into collection '{self.collection_name}'.")
+            
+            # Return the unique doc_ids
+            return list(doc_ids_processed)
+
+        except Exception as e:
+            error_msg = f"Ingestion failed for batch of {len(documents)} documents: {e}"
+            logger.error(error_msg, exc_info=True)
+            raise RuntimeError(error_msg) from e
+
+
+    # --- MODIFIED: Old 'ingest' is now a wrapper ---
+    async def ingest(self, file_path: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
+        """
+        (DEPRECATED - use ingest_from_file)
+        Ingests a document from a *single file path*.
+        This is now a wrapper for `ingest_from_file`.
+        """
+        doc_ids = await self.ingest_from_file(file_path, metadata)
+        return bool(doc_ids)
+
+    async def ingest_from_file(self, file_path: str, metadata: Optional[Dict[str, Any]] = None) -> List[str]:
+        """
+        Ingests a single document from a file path.
+        This method now uses the core `ingest_documents`.
         """
         if not os.path.isfile(file_path):
             error_msg = f"Ingestion failed: File not found at path '{file_path}'."
             logger.error(error_msg)
             raise ValueError(error_msg)
 
-        file_extension = os.path.splitext(file_path)[1].lower()
-        logger.info("Starting ingestion of file: '%s' (type: %s)", file_path, file_extension)
-
+        logger.info(f"Loading file for ingestion: '{file_path}'")
         try:
-            # --- 1. Load Document ---
-            # LangChain's UnstructuredFileLoader often automatically chooses the right loader
-            loader = UnstructuredFileLoader(file_path=file_path, mode="single") # 'single' loads as one doc
-            # Alternative: Use specific loaders if needed for better control
-            # if file_extension == '.pdf':
-            #     loader = UnstructuredPDFLoader(file_path=file_path)
-            # elif file_extension in ['.docx', '.doc']:
-            #     loader = UnstructuredWordDocumentLoader(file_path=file_path)
-            # elif file_extension == '.md':
-            #     loader = UnstructuredMarkdownLoader(file_path=file_path)
-            # else:
-            #     loader = UnstructuredFileLoader(file_path=file_path)
+            # Use UnstructuredFileLoader to get content
+            loader = UnstructuredFileLoader(file_path=file_path, mode="single")
+            
+            # Run in executor to prevent blocking
+            lc_docs: List[LCDocument] = await asyncio.get_event_loop().run_in_executor(None, loader.load)
+            
+            if not lc_docs:
+                logger.warning(f"No content extracted from '{file_path}'. Skipping.")
+                return []
 
-            # Load documents (list of LangChain Documents)
-            # run_in_executor is used to prevent blocking the async event loop
-            langchain_documents: List[LCDocument] = await asyncio.get_event_loop().run_in_executor(None, loader.load)
-            logger.debug("Loaded %d document(s) from '%s'", len(langchain_documents), file_path)
+            # Create our standard Document
+            doc_metadata = metadata or {}
+            doc_metadata.update(lc_docs[0].metadata) # Add metadata from loader
+            doc_metadata["file_source"] = file_path # Ensure source is set
+            
+            document = Document(
+                content=lc_docs[0].page_content,
+                metadata=doc_metadata
+            )
+            
+            # Call the new core ingestion method
+            return await self.ingest_documents([document])
 
-            if not langchain_documents:
-                warning_msg = f"No content extracted from '{file_path}'. Skipping ingestion."
-                logger.warning(warning_msg)
-                return False # Not an error, just no content
-
-            # --- 2. Assign/Update Metadata ---
-            # Add common metadata
-            doc_id = str(uuid.uuid4())
-            common_metadata = {
-                "file_source": file_path,
-                "doc_id": doc_id,
-                # Add file size, modification time etc. if needed
-            }
-            if metadata:
-                common_metadata.update(metadata)
-
-            # Update metadata for each loaded document part
-            for lc_doc in langchain_documents:
-                # Merge common metadata with existing doc metadata
-                lc_doc.metadata.update(common_metadata)
-
-            # --- 3. Split Documents into Chunks ---
-            # Split the list of LangChain Documents
-            split_documents: List[LCDocument] = self.text_splitter.split_documents(langchain_documents)
-            logger.debug("Split into %d chunks.", len(split_documents))
-
-            # --- 4. Add Chunks to Vector Store ---
-            # Prepare lists of texts and metadatas for Chroma.add_texts
-            texts = [doc.page_content for doc in split_documents]
-            metadatas = [doc.metadata for doc in split_documents]
-
-            # Add to ChromaDB (this is usually sync, but LangChain handles it)
-            # Consider running in executor if it blocks for large amounts of data
-            # run_in_executor is used to prevent blocking the async event loop
-            await asyncio.get_event_loop().run_in_executor(None, self.vector_store.add_texts, texts, metadatas)
-            # self.vector_store.add_texts(texts=texts, metadatas=metadatas) # If async is handled internally
-
-            logger.info("Successfully ingested '%s' (%d chunks) into collection '%s'.", file_path, len(split_documents), self.collection_name)
-            return True
-
-        except ValueError as e:
-            # Catch potential errors from unstructured loaders for unsupported types
-            error_msg = f"Ingestion failed for '{file_path}': Unsupported file type or parsing error. {e}"
-            logger.error(error_msg)
-            raise ValueError(error_msg) from e
         except Exception as e:
-            error_msg = f"Ingestion failed for '{file_path}': {e}"
+            error_msg = f"Ingestion failed for file '{file_path}': {e}"
             logger.error(error_msg, exc_info=True)
             raise RuntimeError(error_msg) from e
+
+    # --- NEW: URL Ingestion Method ---
+    async def ingest_from_urls(self, urls: List[str], metadata: Optional[Dict[str, Any]] = None) -> List[str]:
+        """
+        Ingests content from a list of web URLs.
+        This demonstrates the new data-source-agnostic pipeline.
+        """
+        logger.info(f"Starting ingestion from {len(urls)} URLs.")
+        
+        # 1. Load content from URLs using WebBaseLoader
+        try:
+            loader = WebBaseLoader(urls)
+            # We can also run this in an executor
+            lc_docs: List[LCDocument] = await asyncio.get_event_loop().run_in_executor(None, loader.load)
+        except Exception as e:
+            logger.error(f"Failed to load content from URLs: {e}", exc_info=True)
+            return [] # Return empty list if loading fails
+
+        if not lc_docs:
+            logger.warning(f"No content extracted from URLs: {urls}. Skipping.")
+            return []
+
+        # 2. Convert to standard Document objects
+        documents: List[Document] = []
+        for lc_doc in lc_docs:
+            # Combine provided metadata with loader metadata
+            doc_metadata = (metadata or {}).copy()
+            doc_metadata.update(lc_doc.metadata) # Add metadata from loader (like 'source')
+            documents.append(
+                Document(
+                    content=lc_doc.page_content,
+                    metadata=doc_metadata
+                )
+            )
+
+        # 3. Call the core ingestion method
+        return await self.ingest_documents(documents)
+
 
     async def query(self, question: str, top_k: int = 5, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Queries the RAG system to retrieve relevant document chunks.
-
-        Performs a similarity search in the ChromaDB vector store based on the
-        embedded `question`.
-
-        Args:
-            question (str): The question or query string.
-            top_k (int, optional): The maximum number of chunks to retrieve. Defaults to 5.
-            filters (Optional[Dict[str, Any]], optional): Metadata filters for the search
-                                                        (e.g., {"source": "manual.pdf"}).
-                                                        Defaults to None.
-
-        Returns:
-            List[Dict[str, Any]]: A list of dictionaries, where each dictionary
-                                represents a retrieved chunk.
-                                Example: [{'content': '...', 'metadata': {...}}, ...]
-                                Returns an empty list if no relevant chunks are found.
+        (This method remains unchanged)
         """
         logger.debug("RAG query initiated: '%s' (top_k=%d, filters=%s)", question, top_k, filters)
         try:
             # Perform similarity search using LangChain's Chroma wrapper
-            # This returns LangChain Documents
             search_kwargs = {"k": top_k}
             if filters:
                 # Chroma supports filtering by metadata
                 search_kwargs["filter"] = filters
 
             # Similarity search (usually sync, run in executor if needed to prevent blocking)
-            # run_in_executor is used to prevent blocking the async event loop
             results: List[LCDocument] = await asyncio.get_event_loop().run_in_executor(
-                None, self.vector_store.similarity_search, question, search_kwargs
+                None, self.vector_store.similarity_search, question, **search_kwargs
             )
-            # results = self.vector_store.similarity_search(question, **search_kwargs)
 
             # Convert LangChain Documents to standard Dict format
             formatted_results = [
@@ -274,17 +275,12 @@ class UniversalRAG(RAGConnector):
         except Exception as e:
             error_msg = f"RAG query failed for question '{question}': {e}"
             logger.error(error_msg, exc_info=True)
-            # Depending on requirements, you might want to return an empty list
-            # or raise an error for the agent to handle.
             raise RuntimeError(error_msg) from e
 
     def get_collection_stats(self) -> Dict[str, Any]:
         """
         Gets basic statistics about the ChromaDB collection.
-
-        Returns:
-            Dict[str, Any]: A dictionary containing collection stats like name and count.
-                            Returns {} if stats cannot be retrieved.
+        (This method remains unchanged)
         """
         try:
             # Access the underlying ChromaDB Collection object
