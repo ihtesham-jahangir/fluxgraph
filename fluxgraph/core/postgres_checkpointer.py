@@ -1,8 +1,11 @@
-# In a new file or added to your postgres connector module
 import asyncio
 import json
 from datetime import datetime
 import asyncpg # Assuming you use asyncpg or similar
+
+# --- ADD THIS IMPORT ---
+from typing import Optional
+# -------------------------
 
 from fluxgraph.core.checkpointer import BaseCheckpointer
 from fluxgraph.core.workflow_graph import WorkflowState
@@ -29,7 +32,7 @@ class PostgresCheckpointer(BaseCheckpointer):
                 );
             """)
 
-    async def load_state(self, workflow_id: str) -> Optional[WorkflowState]:
+    async def load_state(self, workflow_id: str) -> Optional[WorkflowState]: # <- This line now works
         """Load the state from the database."""
         if not self.pool:
             await self.setup()
@@ -57,7 +60,8 @@ class PostgresCheckpointer(BaseCheckpointer):
             raise ValueError("WorkflowState must have a workflow_id to be saved.")
 
         # Serialize the state
-        state_data = state.to_dict() # Assumes a to_dict() method
+        # Assuming your WorkflowState class has a .to_dict() method
+        state_data = state.to_dict() 
         state_json = json.dumps(state_data)
         
         async with self.pool.acquire() as conn:

@@ -11,7 +11,7 @@ import hashlib
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 import asyncpg  # Uses async postgres, not sqlite
-
+from enum import Enum
 logger = logging.getLogger(__name__)
 
 

@@ -11,14 +11,14 @@
 [![PyPI](https://img.shields.io/pypi/v/fluxgraph?color=6366f1&style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/fluxgraph/)
 [![Python](https://img.shields.io/pypi/pyversions/fluxgraph?style=flat-square&logo=python&logoColor=white&color=3776ab)](https://pypi.org/project/fluxgraph/)
 [![License](https://img.shields.io/github/license/ihtesham-jahangir/fluxgraph?style=flat-square&color=10b981)](https://github.com/ihtesham-jahangir/fluxgraph/blob/main/LICENSE)
-[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Community&style=flat-square&color=5865F2)](https://discord.gg/Z9bAqjYvPc)
+[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Community&style=flat-square&color=5865F2)](https://discord.gg/VZQZdN26)
 
 [![Stars](https://img.shields.io/github/stars/ihtesham-jahangir/fluxgraph?style=social)](https://github.com/ihtesham-jahangir/fluxgraph)
 [![Downloads](https://static.pepy.tech/badge/fluxgraph)](https://pepy.tech/project/fluxgraph)
 [![Monthly](https://static.pepy.tech/badge/fluxgraph/month)](https://pepy.tech/project/fluxgraph)
 [![Weekly](https://static.pepy.tech/badge/fluxgraph/week)](https://pepy.tech/project/fluxgraph)
 
-[**📖 Docs**](https://fluxgraph.readthedocs.io) • [**💬 Discord**](https://discord.gg/Z9bAqjYvPc) • [**⚡ Quick Start**](#-60-second-quickstart) • [**🎯 Examples**](#-real-world-examples)
+[**📖 Docs**](https://fluxgraph.readthedocs.io) • [**💬 Discord**](https://discord.gg/VZQZdN26) • [**⚡ Quick Start**](#-60-second-quickstart) • [**🎯 Examples**](#-real-world-examples)
 
 </div>
 
@@ -841,13 +841,13 @@ app = FluxApp(llm_provider="anthropic")  # That's it!
 
 ### Join 1000+ Developers Building Production AI
 
-[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord%20Community&style=for-the-badge&color=5865F2)](https://discord.gg/Z9bAqjYvPc)
+[![Discord](https://img.shields.io/discord/1243184424318402592?logo=discord&label=Discord%20Community&style=for-the-badge&color=5865F2)](https://discord.gg/VZQZdN26)
 [![GitHub Discussions](https://img.shields.io/github/discussions/ihtesham-jahangir/fluxgraph?style=for-the-badge&logo=github)](https://github.com/ihtesham-jahangir/fluxgraph/discussions)
 
 </div>
 
 **📖 Documentation:** [fluxgraph.readthedocs.io](https://fluxgraph.readthedocs.io)  
-**💬 Discord:** [Join Community](https://discord.gg/Z9bAqjYvPc) — Get help, share projects  
+**💬 Discord:** [Join Community](https://discord.gg/VZQZdN26) — Get help, share projects  
 **🐛 GitHub Issues:** [Report Bugs](https://github.com/ihtesham-jahangir/fluxgraph/issues) — We respond fast  
 **💡 Discussions:** [Feature Requests](https://github.com/ihtesham-jahangir/fluxgraph/discussions)  
 **💼 Enterprise:** enterprise@fluxgraph.com — SLA, priority support
@@ -1277,7 +1277,7 @@ llm = OllamaProvider(model="llama3", base_url="http://localhost:11434")
 <h3>💬 Join Community</h3>
 1000+ developers building with FluxGraph
 <br><br>
-<a href="https://discord.gg/Z9bAqjYvPc">Join Discord →</a>
+<a href="https://discord.gg/VZQZdN26">Join Discord →</a>
 </td>
 <td align="center" width="33%">
 <h3>📖 Read Docs</h3>

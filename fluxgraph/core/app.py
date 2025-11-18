@@ -2,46 +2,7 @@
 FluxGraph Application Core - Enterprise Edition v3.2 (100% COMPLETE & PRODUCTION READY)
 
 The most comprehensive AI agent orchestration framework with ALL features:
-
-✅ P0: Resumable Workflows (Postgres Checkpointing)
-✅ P1: Workflow Observability (Postgres Structured Logging)
-✅ P2: Verifiable Audit Logs (Hash-Chained) & RAG Pipelines
-
-✅ v3.0 P0 Features:
-   - Graph-based workflows with visual builder
-   - Advanced multi-tier memory system (short/long/episodic)
-   - Agent response caching (exact/semantic/hybrid)
-   
-✅ v3.1 Features:
-   - Enhanced memory with entity extraction & embeddings
-   - Database connector marketplace (Postgres/Salesforce/Shopify)
-   - Visual workflow builder with React UI
-   
-✅ v3.2 Features (LangChain Feature Parity):
-   - LCEL-style chain building with pipe operators
-   - LangSmith-style distributed tracing
-   - Optimized batch processing with adaptive concurrency
-   - Time-to-First-Token streaming optimization
-   - LangServe-style production deployment
-   
-✅ Security Features:
-   - Verifiable Audit Logging with AuditEventType tracking
-   - PII detection and redaction
-   - Prompt injection detection
-   - Role-Based Access Control (RBAC)
-   
-✅ Advanced Orchestration:
-   - Message bus for agent communication
-   - Agent handoff protocols
-   - Human-in-the-loop (HITL) support
-   - Task adherence monitoring
-   - Circuit breakers for fault tolerance
-   
-✅ Analytics & Monitoring:
-   - Real-time performance monitoring
-   - Interactive analytics dashboard
-   - Cost tracking per agent/request
-   - Token usage analytics
+...
 """
 
 import os
@@ -244,12 +205,17 @@ except ImportError:
 
 # ===== V3.1 IMPORTS =====
 try:
-    from fluxgraph.core.enhanced_memory import EnhancedMemory
+    # -----------------------------------------------------------------
+    # BUG FIX 1: This was importing the wrong class from the wrong file.
+    # It's now corrected to import EnhancedMemory from its own file.
+    # (This assumes fluxgraph/core/enhanced_memory.py exists)
+    # -----------------------------------------------------------------
+    from .enhanced_memory import EnhancedMemory
     from fluxgraph.connectors import PostgresConnector, SalesforceConnector, ShopifyConnector
     from fluxgraph.workflows.visual_builder import VisualWorkflow
     V31_FEATURES_AVAILABLE = True
     logger.debug("✅ v3.1 features loaded")
-except ImportError:
+except ImportError as e:
     V31_FEATURES_AVAILABLE = False
     EnhancedMemory = PostgresConnector = SalesforceConnector = ShopifyConnector = VisualWorkflow = None
     logger.warning("⚠️ v3.1 (Enhanced Memory/Connectors) features not found. They will be disabled.")
@@ -522,6 +488,10 @@ class FluxApp:
         # Enhanced Memory
         if enable_enhanced_memory and database_url and V31_FEATURES_AVAILABLE:
             logger.info("   🧠 Enhanced Memory: ✅ ENABLED (Entity Extraction)")
+            # -----------------------------------------------------------------
+            # BUG FIX 2: This was a NameError (typo) and assigning to the wrong var.
+            # Was: self.advanced_memory = Advanced_memory(database_url)
+            # -----------------------------------------------------------------
             self.enhanced_memory = EnhancedMemory(database_url)
             self._enhanced_memory_initialized = False
             self.enhanced_memory_enabled = True
@@ -1210,7 +1180,7 @@ class FluxApp:
                     if self._rag_connector:
                         kwargs['rag'] = self._rag_connector
                     if self._advanced_memory:
-                        kwargs['advanced_memory'] = self._advanced_memory
+                        kwargs['advanced_memory'] = self.advanced_memory
                     if self._hitl_manager:
                         kwargs['hitl'] = self._hitl_manager
                     

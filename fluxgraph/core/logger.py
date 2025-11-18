@@ -1,5 +1,4 @@
-# fluxgraph/core/logger.py
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # This import is correct
 from typing import Dict, Any, Optional
 from enum import Enum
 
@@ -16,7 +15,7 @@ class BaseLogger(ABC):
     Abstract base class for a structured workflow logger.
     """
 
-    @abstractmodule
+    @abstractmethod  # <-- FIX 1: Was @abstractmodule
     async def log_event(
         self,
         workflow_id: str,
@@ -27,7 +26,7 @@ class BaseLogger(ABC):
         """Log a single event in the workflow execution."""
         pass
 
-    @abstractmodule
+    @abstractmethod  # <-- FIX 2: Was @abstractmodule
     async def setup(self):
         """Optional method to set up any required resources, like DB tables."""
         pass
