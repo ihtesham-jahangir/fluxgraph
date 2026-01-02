@@ -535,14 +535,55 @@ async def _execute_conditional_node(node_data: Dict, state: Dict) -> Dict:
             elif "false" in expression.lower():
                 result = "false"
             else:
-                # Basic evaluation for numbers/comparisons
+                # Basic evaluation for numbers/comparisons using safe AST evaluation
                 import re
+                import ast
+                import operator as op
+
+                # Define safe operators
+                safe_operators = {
+                    ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
+                    ast.Div: op.truediv, ast.Mod: op.mod,
+                    ast.Eq: op.eq, ast.NotEq: op.ne,
+                    ast.Lt: op.lt, ast.LtE: op.le,
+                    ast.Gt: op.gt, ast.GtE: op.ge
+                }
+
+                def safe_eval(expr_str):
+                    """Safely evaluate simple mathematical and comparison expressions."""
+                    try:
+                        node = ast.parse(expr_str, mode='eval').body
+
+                        def _eval(node):
+                            if isinstance(node, ast.Constant):  # Python 3.8+
+                                return node.value
+                            elif isinstance(node, ast.Num):  # Python 3.7 compatibility
+                                return node.n
+                            elif isinstance(node, ast.BinOp):
+                                left = _eval(node.left)
+                                right = _eval(node.right)
+                                return safe_operators[type(node.op)](left, right)
+                            elif isinstance(node, ast.Compare):
+                                left = _eval(node.left)
+                                for op_node, comparator in zip(node.ops, node.comparators):
+                                    right = _eval(comparator)
+                                    if not safe_operators[type(op_node)](left, right):
+                                        return False
+                                    left = right
+                                return True
+                            else:
+                                raise ValueError(f"Unsupported expression type: {type(node)}")
+
+                        return _eval(node)
+                    except Exception:
+                        return None
+
                 if re.search(r'\d+\s*[><=]+\s*\d+', expression):
-                    # WARNING: eval is dangerous - use a safe evaluator in production
-                    result = "true" if eval(expression) else "false"
+                    eval_result = safe_eval(expression)
+                    result = "true" if eval_result else "false"
                 else:
                     result = "true"
-        except:
+        except Exception:
             result = "false"
         
         return {"branch": result}

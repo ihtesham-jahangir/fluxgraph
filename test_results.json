@@ -1,6 +1,6 @@
 {
-  "passed": 13,
-  "failed": 0,
+  "passed": 6,
+  "failed": 7,
   "total": 13,
   "details": [
     {
@@ -17,31 +17,31 @@
     },
     {
       "test": "v3.0: Workflows",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "v3.0: Memory",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "v3.0: Cache",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "v3.2: Chains",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "v3.2: Tracing",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "v3.2: Batch",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "v3.2: Streaming",
-      "status": "PASSED"
+      "status": "FAILED"
     },
     {
       "test": "Integration: Memory",

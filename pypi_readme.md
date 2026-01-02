@@ -319,7 +319,7 @@ services:
 ## Documentation & Support
 
 - **Documentation**: https://fluxgraph.readthedocs.io
-- **Discord**: https://discord.gg/Z9bAqjYvPc
+- **Discord**: https://discord.gg/VZQZdN26
 - **GitHub**: https://github.com/ihtesham-jahangir/fluxgraph
 - **Issues**: https://github.com/ihtesham-jahangir/fluxgraph/issues
 - **Enterprise**: enterprise@fluxgraph.com

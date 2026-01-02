@@ -18,12 +18,13 @@ import time
 import argparse
 from contextvars import ContextVar
 import json
-from fluxgraph.api import designer_routes
 # --- START: P1.2 Dependency Fix ---
 try:
     import tiktoken
+    TIKTOKEN_AVAILABLE = True
 except ImportError:
-    pass # Handle in _ensure_virtual_environment if needed, but allow app to load
+    tiktoken = None
+    TIKTOKEN_AVAILABLE = False
 # --- END: P1.2 Dependency Fix ---
 
 # ===== LOGGING CONFIGURATION (Modern Console) =====
@@ -1180,7 +1181,7 @@ class FluxApp:
                     if self._rag_connector:
                         kwargs['rag'] = self._rag_connector
                     if self._advanced_memory:
-                        kwargs['advanced_memory'] = self.advanced_memory
+                        kwargs['advanced_memory'] = self._advanced_memory
                     if self._hitl_manager:
                         kwargs['hitl'] = self._hitl_manager
                     

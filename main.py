@@ -2,6 +2,7 @@ import httpx
 import time
 import random
 import asyncio
+import os
 from fastapi import FastAPI, HTTPException, Request, Body, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any, AsyncGenerator
@@ -11,8 +12,7 @@ from typing import List, Optional, Dict, Any, AsyncGenerator
 #    (Assumes 'fluxgraph' folder is in the same directory or installed)
 # ---------------------------------------------------------------------------
 try:
-    from fluxgraph.app import FluxApp  # Import your main class
-    from fluxgraph.agent import FluxAgent # Import the base agent
+    from fluxgraph.core.app import FluxApp  # Import your main class
 except ImportError:
     print("Error: Could not import FluxApp. Make sure your 'fluxgraph' library is installed or in the PYTHONPATH.")
     print("Try running: pip install -e .  (if you are in the root of your GitHub repo)")
@@ -23,9 +23,12 @@ except ImportError:
 # 2. DEFINE YOUR DEMO AGENTS & CHAINS (to show the UI works)
 # ---------------------------------------------------------------------------
 
-class SimpleAgent(FluxAgent):
+class SimpleAgent:
     """A simple demo agent that just echoes the input."""
-    def run(self, query: str) -> Dict[str, Any]:
+    def __init__(self, name: str = "assistant"):
+        self.name = name
+
+    async def run(self, query: str, **kwargs) -> Dict[str, Any]:
         return {
             "response": f"FluxAgent '{self.name}' processed: '{query}'",
             "agent_name": self.name,
@@ -78,7 +81,8 @@ flux_app = FluxApp(
 # ---------------------------------------------------------------------------
 
 flux_app.register("assistant", SimpleAgent())
-flux_app.register_streaming_chain("streaming_chain_example", streaming_chain_example)
+# TODO: Implement register_streaming_chain method in FluxApp
+# flux_app.register_streaming_chain("streaming_chain_example", streaming_chain_example)
 
 
 # ---------------------------------------------------------------------------
