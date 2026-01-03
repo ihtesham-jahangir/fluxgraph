@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fluxgraph"
-version = "2.2.0"
-description = "Production-grade AI agent orchestration framework with webhooks, rate limiting, plugins, workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen."
+version = "2.3.0"
+description = "Production-grade AI agent orchestration framework with web scraping, document extraction, webhooks, rate limiting, plugins, workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen."
 readme = "pypi_readme.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -91,6 +91,17 @@ rag = [
     "pypdf>=3.17.0",
     "docx2txt>=0.8",
     "unstructured>=0.11.0",
+]
+
+extractors = [
+    "httpx>=0.25.0",
+    "beautifulsoup4>=4.12.0",
+    "pypdf>=3.17.0",
+    "python-docx>=1.0.0",
+    "openpyxl>=3.1.0",
+    "python-pptx>=0.6.21",
+    "markdownify>=0.11.0",
+    "lxml>=4.9.0",
 ]
 
 postgres = [
@@ -181,6 +192,13 @@ all = [
     "prometheus-client>=0.19.0",
     "plotly>=5.18.0",
     "pandas>=2.0.0",
+    "httpx>=0.25.0",
+    "beautifulsoup4>=4.12.0",
+    "python-docx>=1.0.0",
+    "openpyxl>=3.1.0",
+    "python-pptx>=0.6.21",
+    "markdownify>=0.11.0",
+    "lxml>=4.9.0",
     "langchain-core>=0.1.0",
     "opentelemetry-api>=1.20.0",
     "opentelemetry-sdk>=1.20.0",

@@ -30,7 +30,7 @@ BANNER = """
 ║   ╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝     ║
 ║                                                           ║
 ║   Production-Grade AI Agent Orchestration Framework      ║
-║   Version 2.1.0                                          ║
+║   Version 2.3.0                                          ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 """

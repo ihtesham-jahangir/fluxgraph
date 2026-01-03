@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.3.0] - 2026-01-02
+
+### 🌐 Major Update: Web Scraping & Document Extraction
+
+#### New Features
+- ✅ **Web Scraping** - Extract content from any URL with automatic cleaning
+- ✅ **Document Extraction** - Support for PDF, DOCX, XLSX, PPTX, and more
+- ✅ **Data Parsing** - Extract emails, URLs, phone numbers, dates, prices automatically
+- ✅ **Smart Content Detection** - Automatic article extraction and metadata parsing
+- ✅ **Batch Processing** - Scrape multiple URLs concurrently
+- ✅ **Markdown Conversion** - Convert HTML to markdown automatically
+
+#### Data Extraction Features
+- 📄 **PDF** - Multi-page text extraction with metadata
+- 📝 **Word** - DOCX and DOC support with tables
+- 📊 **Excel** - XLSX and XLS with sheet/table extraction
+- 📑 **PowerPoint** - PPTX slide extraction
+- 🌐 **Web** - Smart HTML parsing with BeautifulSoup
+- 📋 **Structured Data** - JSON, CSV, XML, YAML parsing
+
+#### Convenience Functions
+- `scrape_url()` - Quick single URL scraping
+- `scrape_urls()` - Batch scraping with concurrency control
+- `extract_article()` - Smart article extraction
+- `extract_text()` - Universal document text extraction
+- `extract_all_data()` - Extract all data types (emails, URLs, etc.)
+
+#### Installation
+```bash
+pip install fluxgraph[extractors]  # Web scraping + document extraction
+pip install fluxgraph[all]          # Everything including extractors
+```
+
 ## [2.2.0] - 2026-01-02
 
 ### 🚀 Major Update: Enhanced Developer Experience
