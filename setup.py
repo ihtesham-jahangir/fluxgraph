@@ -128,10 +128,10 @@ extras_require['all'] = list(set(sum(extras_require.values(), [])))
 
 setup(
     name="fluxgraph",
-    version="2.1.0",
+    version="2.2.0",
     author="Ihtesham Jahangir",
     author_email="ceo@alphanetwork.com.pk",
-    description="Production-grade AI agent orchestration framework with graph workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen.",
+    description="Production-grade AI agent orchestration framework with webhooks, rate limiting, plugins, workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ihtesham-jahangir/fluxgraph",
@@ -202,8 +202,8 @@ setup(
     extras_require=extras_require,
     entry_points={
         'console_scripts': [
-            'flux=fluxgraph.core.app:main',
-            'fluxgraph=fluxgraph.core.app:main',
+            'flux=fluxgraph.cli:main',
+            'fluxgraph=fluxgraph.cli:main',
         ],
     },
     zip_safe=False,

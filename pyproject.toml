@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fluxgraph"
-version = "2.1.0"
-description = "Production-grade AI agent orchestration framework with graph workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen."
+version = "2.2.0"
+description = "Production-grade AI agent orchestration framework with webhooks, rate limiting, plugins, workflows, semantic caching, and hybrid memory. The complete alternative to LangGraph, CrewAI, and AutoGen."
 readme = "pypi_readme.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
