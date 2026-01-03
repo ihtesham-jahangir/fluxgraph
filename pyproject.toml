@@ -227,6 +227,7 @@ fluxgraph = "fluxgraph.core.app:main"
 
 [tool.setuptools]
 include-package-data = true
+license-files = []
 
 [tool.setuptools.packages.find]
 where = ["."]
