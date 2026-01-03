@@ -109,6 +109,18 @@ extras_require = {
         'httpx>=0.25.0',
         'faker>=20.1.0',
     ],
+
+    # Web scraping and document extraction
+    'extractors': [
+        'httpx>=0.25.0',
+        'beautifulsoup4>=4.12.0',
+        'pypdf>=3.17.0',
+        'python-docx>=1.0.0',
+        'openpyxl>=3.1.0',
+        'python-pptx>=0.6.21',
+        'markdownify>=0.11.0',
+        'lxml>=4.9.0',
+    ],
 }
 
 # 'full' includes all production features (recommended)
@@ -209,5 +221,4 @@ setup(
     zip_safe=False,
     platforms=['any'],
     license='MIT',
-    license_files=['LICENSE'],
 )
